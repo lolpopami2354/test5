@@ -31,7 +31,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
     }
 
     button:hover {
@@ -39,7 +39,7 @@
     }
 
     #backButton {
-      position: absolute;
+      position: fixed;
       top: 20px;
       left: 20px;
       padding: 10px 20px;
@@ -50,6 +50,7 @@
       border-radius: 6px;
       cursor: pointer;
       display: none;
+      z-index: 9999;
     }
 
     #backButton:hover {
@@ -75,12 +76,15 @@
   <center>
     <h1>Drive Mad!</h1>
     <button onclick="launchGame3()">Play Drive Mad</button>
+    <button onclick="fullscreenIframe('gameFrame3')">Fullscreen Drive Mad</button>
 
     <h1>Opposite Day</h1>
     <button onclick="loadGame()">Don't play Opposite Day</button>
+    <button onclick="fullscreenIframe('gameFrame2')">Fullscreen Opposite Day</button>
 
     <h1>❄️ Snow Rider 3D</h1>
     <button onclick="launchGame()">Play Snow Rider 3D</button>
+    <button onclick="fullscreenIframe('gameFrame')">Fullscreen Snow Rider</button>
 
     <iframe id="gameFrame" src="" allowfullscreen></iframe>
     <iframe id="gameFrame2" src="" allowfullscreen></iframe>
@@ -93,6 +97,12 @@
       document.getElementById("gameFrame2").style.display = "none";
       document.getElementById("gameFrame3").style.display = "none";
       document.getElementById("backButton").style.display = "none";
+    }
+
+    function hideAllFrames() {
+      document.getElementById("gameFrame").style.display = "none";
+      document.getElementById("gameFrame2").style.display = "none";
+      document.getElementById("gameFrame3").style.display = "none";
     }
 
     function launchGame() {
@@ -119,10 +129,15 @@
       document.getElementById("backButton").style.display = "inline-block";
     }
 
-    function hideAllFrames() {
-      document.getElementById("gameFrame").style.display = "none";
-      document.getElementById("gameFrame2").style.display = "none";
-      document.getElementById("gameFrame3").style.display = "none";
+    function fullscreenIframe(id) {
+      const iframe = document.getElementById(id);
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
+      } else if (iframe.msRequestFullscreen) {
+        iframe.msRequestFullscreen();
+      }
     }
   </script>
 
