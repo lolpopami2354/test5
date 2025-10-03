@@ -2,83 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Protected Page</title>
+  <title>Bubba's Gramama</title>
+  <link rel="shortcut icon" type="image/x-icon" href="bubbasgramamaa.png" />
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      padding: 0;
       background-color: #4B0082;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      text-align: center;
     }
 
-    #passwordScreen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #mainContent {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    input[type="password"] {
-      padding: 10px;
-      font-size: 18px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      border: none;
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      color: #fff;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 15px 30px;
       font-size: 18px;
       background-color: #0078D4;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
     }
 
     button:hover {
       background-color: #005a9e;
     }
+
+    #backButton {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #backButton:hover {
+      background-color: #333;
+    }
+
+    iframe {
+      width: 1200px;
+      height: 600px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      display: none;
+      margin-top: 20px;
+    }
+
+    .gif {
+      max-width: 300px;
+      margin-bottom: 30px;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
   </style>
 </head>
 <body>
 
-  <div id="passwordScreen">
-    <h1>Enter Password</h1>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Submit</button>
-    <p id="errorMessage" style="color: red; display: none;">Incorrect password. Try again.</p>
-  </div>
+  <button id="backButton" onclick="goBack()">⬅ Back</button>
+  <h1>WELCOME to Bubba's Gramama</h1>
+  <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny fart gif">
 
-  <div id="mainContent">
-    <h1>🎉 Welcome to Bubba's Gramama!</h1>
-    <!-- Your game buttons and content go here -->
-    <p>This is where your full site content will appear after login.</p>
-  </div>
+  <section>
+    <h1>!DRIFT HUNTERS!</h1>
+    <button onclick="launchGame('https://gibbat2.github.io/Games/games/drifthunters/')">Play Drift Hunters</button>
+  </section>
+
+  <section>
+    <h1>Drive Mad!</h1>
+    <button onclick="launchGame('https://gibbat2.github.io/Games/games/drivemad/')">Play Drive Mad</button>
+  </section>
+
+  <section>
+    <h1>Opposite Day</h1>
+    <button onclick="launchGame('https://www.hoodamath.com/games/oppositeday.html')">Don't play Opposite Day</button>
+  </section>
+
+  <section>
+    <h1>❄️ Snow Rider 3D</h1>
+    <button onclick="launchGame('https://www.hoodamath.com/games/snowrider3d.html')">Play Snow Rider 3D</button>
+  </section>
+
+  <iframe id="gameFrame" src="" allowfullscreen></iframe>
 
   <script>
-    const correctPassword = "bubba123"; // 🔑 Change this to your desired password
+    function launchGame(url) {
+      const iframe = document.getElementById('gameFrame');
+      iframe.src = url;
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
 
-    function checkPassword() {
-      const input = document.getElementById("passwordInput").value;
-      const error = document.getElementById("errorMessage");
-
-      if (input === correctPassword) {
-        document.getElementById("passwordScreen").style.display = "none";
-        document.getElementById("mainContent").style.display = "flex";
-      } else {
-        error.style.display = "block";
-      }
+    function goBack() {
+      const iframe = document.getElementById('gameFrame');
+      iframe.src = "";
+      iframe.style.display = "none";
+      document.getElementById("backButton").style.display = "none";
     }
   </script>
 
