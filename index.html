@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Play Drive Mad</title>
+  <style>
+    #gameFrame {
+      display: none;
+      width: 800px;
+      height: 600px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button onclick="loadGame()">Play Drive Mad</button>
+
+  <iframe id="gameFrame" src="" allowfullscreen></iframe>
+
+  <script>
+    function loadGame() {
+      const iframe = document.getElementById("gameFrame");
+      iframe.src = "https://example.com/drive-mad"; // Replace with actual embeddable URL
+      iframe.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
