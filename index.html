@@ -7,7 +7,7 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #4B0082; /* dark purple */
+      background-color: #4B0082;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
@@ -57,13 +57,18 @@
       background-color: #333;
     }
 
-    iframe {
+    .gameContainer {
       width: 1200px;
       height: 600px;
-      border: 2px solid #ccc;
+      display: none;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      display: none;
     }
   </style>
 </head>
@@ -71,72 +76,54 @@
 
   <button id="backButton" onclick="goBack()">⬅ Back</button>
   <h1>WELCOME to Bubba's Gramama</h1>
-  <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
+  <img src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
 
   <center>
     <h1>Drive Mad!</h1>
-    <button onclick="launchGame3()">Play Drive Mad</button>
-    <button onclick="fullscreenIframe('gameFrame3')">Fullscreen Drive Mad</button>
+    <button onclick="launchGame('gameFrame3', 'https://gibbat2.github.io/Games/games/drivemad/')">Play Drive Mad</button>
+    <button onclick="fullscreenIframe('gameContainer3')">Fullscreen Drive Mad</button>
 
     <h1>Opposite Day</h1>
-    <button onclick="loadGame()">Don't play Opposite Day</button>
-    <button onclick="fullscreenIframe('gameFrame2')">Fullscreen Opposite Day</button>
+    <button onclick="launchGame('gameFrame2', 'https://www.hoodamath.com/games/oppositeday.html')">Don't play Opposite Day</button>
+    <button onclick="fullscreenIframe('gameContainer2')">Fullscreen Opposite Day</button>
 
     <h1>❄️ Snow Rider 3D</h1>
-    <button onclick="launchGame()">Play Snow Rider 3D</button>
-    <button onclick="fullscreenIframe('gameFrame')">Fullscreen Snow Rider</button>
+    <button onclick="launchGame('gameFrame', 'https://www.hoodamath.com/games/snowrider3d.html')">Play Snow Rider 3D</button>
+    <button onclick="fullscreenIframe('gameContainer')">Fullscreen Snow Rider</button>
 
-    <iframe id="gameFrame" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame2" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame3" src="" allowfullscreen></iframe>
+    <div id="gameContainer" class="gameContainer">
+      <iframe id="gameFrame" src="" allowfullscreen></iframe>
+    </div>
+    <div id="gameContainer2" class="gameContainer">
+      <iframe id="gameFrame2" src="" allowfullscreen></iframe>
+    </div>
+    <div id="gameContainer3" class="gameContainer">
+      <iframe id="gameFrame3" src="" allowfullscreen></iframe>
+    </div>
   </center>
 
   <script>
     function goBack() {
-      document.getElementById("gameFrame").style.display = "none";
-      document.getElementById("gameFrame2").style.display = "none";
-      document.getElementById("gameFrame3").style.display = "none";
+      document.querySelectorAll('.gameContainer').forEach(c => c.style.display = 'none');
       document.getElementById("backButton").style.display = "none";
     }
 
-    function hideAllFrames() {
-      document.getElementById("gameFrame").style.display = "none";
-      document.getElementById("gameFrame2").style.display = "none";
-      document.getElementById("gameFrame3").style.display = "none";
-    }
-
-    function launchGame() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame');
-      iframe.src = "https://www.hoodamath.com/games/snowrider3d.html";
-      iframe.style.display = "block";
+    function launchGame(frameId, url) {
+      document.querySelectorAll('.gameContainer').forEach(c => c.style.display = 'none');
+      const iframe = document.getElementById(frameId);
+      iframe.src = url;
+      iframe.parentElement.style.display = "block";
       document.getElementById("backButton").style.display = "inline-block";
     }
 
-    function launchGame3() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame3');
-      iframe.src = "https://gibbat2.github.io/Games/games/drivemad/";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
-    function loadGame() {
-      hideAllFrames();
-      const iframe = document.getElementById("gameFrame2");
-      iframe.src = "https://www.hoodamath.com/games/oppositeday.html";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
-    function fullscreenIframe(id) {
-      const iframe = document.getElementById(id);
-      if (iframe.requestFullscreen) {
-        iframe.requestFullscreen();
-      } else if (iframe.webkitRequestFullscreen) {
-        iframe.webkitRequestFullscreen();
-      } else if (iframe.msRequestFullscreen) {
-        iframe.msRequestFullscreen();
+    function fullscreenIframe(containerId) {
+      const container = document.getElementById(containerId);
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
       }
     }
   </script>
