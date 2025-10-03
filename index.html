@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bubba's Gramama</title>
+  <title>Protected Page</title>
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background-color: #4B0082;
       font-family: 'Segoe UI', sans-serif;
+      background-color: #4B0082;
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -16,114 +16,68 @@
       height: 100vh;
     }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2.5em;
-      color: #fff;
+    #passwordScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #mainContent {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input[type="password"] {
+      padding: 10px;
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
     }
 
     button {
-      padding: 15px 30px;
+      padding: 10px 20px;
       font-size: 18px;
       background-color: #0078D4;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-bottom: 10px;
     }
 
     button:hover {
       background-color: #005a9e;
     }
-
-    #backButton {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #555;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none;
-      z-index: 9999;
-    }
-
-    #backButton:hover {
-      background-color: #333;
-    }
-
-    .gameContainer {
-      width: 1200px;
-      height: 600px;
-      display: none;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
   </style>
 </head>
 <body>
 
-  <button id="backButton" onclick="goBack()">⬅ Back</button>
-  <h1>WELCOME to Bubba's Gramama</h1>
-  <img src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
+  <div id="passwordScreen">
+    <h1>Enter Password</h1>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Submit</button>
+    <p id="errorMessage" style="color: red; display: none;">Incorrect password. Try again.</p>
+  </div>
 
-  <center>
-    <h1>Drive Mad!</h1>
-    <button onclick="launchGame('gameFrame3', 'https://gibbat2.github.io/Games/games/drivemad/')">Play Drive Mad</button>
-    <button onclick="fullscreenIframe('gameContainer3')">Fullscreen Drive Mad</button>
-
-    <h1>Opposite Day</h1>
-    <button onclick="launchGame('gameFrame2', 'https://www.hoodamath.com/games/oppositeday.html')">Don't play Opposite Day</button>
-    <button onclick="fullscreenIframe('gameContainer2')">Fullscreen Opposite Day</button>
-
-    <h1>❄️ Snow Rider 3D</h1>
-    <button onclick="launchGame('gameFrame', 'https://www.hoodamath.com/games/snowrider3d.html')">Play Snow Rider 3D</button>
-    <button onclick="fullscreenIframe('gameContainer')">Fullscreen Snow Rider</button>
-
-    <div id="gameContainer" class="gameContainer">
-      <iframe id="gameFrame" src="" allowfullscreen></iframe>
-    </div>
-    <div id="gameContainer2" class="gameContainer">
-      <iframe id="gameFrame2" src="" allowfullscreen></iframe>
-    </div>
-    <div id="gameContainer3" class="gameContainer">
-      <iframe id="gameFrame3" src="" allowfullscreen></iframe>
-    </div>
-  </center>
+  <div id="mainContent">
+    <h1>🎉 Welcome to Bubba's Gramama!</h1>
+    <!-- Your game buttons and content go here -->
+    <p>This is where your full site content will appear after login.</p>
+  </div>
 
   <script>
-    function goBack() {
-      document.querySelectorAll('.gameContainer').forEach(c => c.style.display = 'none');
-      document.getElementById("backButton").style.display = "none";
-    }
+    const correctPassword = "bubba123"; // 🔑 Change this to your desired password
 
-    function launchGame(frameId, url) {
-      document.querySelectorAll('.gameContainer').forEach(c => c.style.display = 'none');
-      const iframe = document.getElementById(frameId);
-      iframe.src = url;
-      iframe.parentElement.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      const error = document.getElementById("errorMessage");
 
-    function fullscreenIframe(containerId) {
-      const container = document.getElementById(containerId);
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
+      if (input === correctPassword) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "flex";
+      } else {
+        error.style.display = "block";
       }
     }
   </script>
