@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Bubba's Gramama</title>
   <style>
     body {
@@ -9,45 +9,41 @@
       padding: 0;
       background-color: #4B0082;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
       min-height: 100vh;
     }
 
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
     h1 {
-      margin: 20px 0 10px;
+      margin-bottom: 10px;
       font-size: 2em;
       color: #fff;
+      text-align: center;
     }
 
     button {
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: 15px 30px;
+      font-size: 18px;
       background-color: #0078D4;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin: 5px;
+      margin-bottom: 30px;
     }
 
     button:hover {
       background-color: #005a9e;
     }
 
-    button.fullscreen {
-      background-color: #444;
-    }
-
-    button.fullscreen:hover {
-      background-color: #222;
-    }
-
     #backButton {
-      position: fixed;
+      position: absolute;
       top: 20px;
       left: 20px;
       padding: 10px 20px;
@@ -58,95 +54,144 @@
       border-radius: 6px;
       cursor: pointer;
       display: none;
-      z-index: 1000;
+    }
+
+    #backButton:hover {
+      background-color: #333;
     }
 
     iframe {
-      width: 90%;
-      max-width: 1200px;
+      width: 1200px;
+      max-width: 100%;
       height: 600px;
       border: 2px solid #ccc;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
       display: none;
-      margin: 20px 0;
+    }
+
+    img.gif {
+      margin-bottom: 30px;
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
   <link rel="shortcut icon" type="image/x-icon" href="bubbasgramamaa.png" />
-
   <button id="backButton" onclick="goBack()">⬅ Back</button>
-  <h1>WELCOME to Bubba's Gramama</h1>
-  <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
 
-  <div id="gameButtons">
+  <div class="container">
+    <h1>WELCOME to Bubba's Gramama</h1>
+    <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
+
+    <h1>Subway Surfers</h1>
+    <button onclick="launchGame7()">Play Subway Surfers</button>
+
     <h1>Stickman Golf</h1>
-    <button onclick="showFrame('gameFrame7', 'https://gibbat2.github.io/Games/games/stickman-golf/')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame7')">🔳 Fullscreen</button>
+    <button onclick="launchGame8()">Play Stickman Golf</button>
 
     <h1>Basketball Random</h1>
-    <button onclick="showFrame('gameFrame6', 'https://gibbat2.github.io/Games/games/basketball-random/')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame6')">🔳 Fullscreen</button>
+    <button onclick="launchGame6()">Play Basketball Random</button>
 
     <h1>Minecraft</h1>
-    <button onclick="showFrame('gameFrame5', 'https://daniezonmc.github.io/1.20/')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame5')">🔳 Fullscreen</button>
+    <button onclick="launchGame5()">Play Minecraft</button>
 
-    <h1>Drift Hunters</h1>
-    <button onclick="showFrame('gameFrame4', 'https://gibbat2.github.io/Games/games/drifthunters/')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame4')">🔳 Fullscreen</button>
+    <h1>!DRIFT HUNTERS!</h1>
+    <button onclick="launchGame4()">Play Drift Hunters</button>
 
-    <h1>Drive Mad</h1>
-    <button onclick="showFrame('gameFrame3', 'https://gibbat2.github.io/Games/games/drivemad/')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame3')">🔳 Fullscreen</button>
+    <h1>Drive Mad!</h1>
+    <button onclick="launchGame3()">Play Drive Mad</button>
 
     <h1>Opposite Day</h1>
-    <button onclick="showFrame('gameFrame2', 'https://www.hoodamath.com/games/oppositeday.html')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame2')">🔳 Fullscreen</button>
+    <button onclick="loadGame()">Don't play Opposite Day</button>
 
     <h1>❄️ Snow Rider 3D</h1>
-    <button onclick="showFrame('gameFrame1', 'https://www.hoodamath.com/games/snowrider3d.html')">Play</button>
-    <button class="fullscreen" onclick="fullscreen('gameFrame1')">🔳 Fullscreen</button>
+    <button onclick="launchGame()">Play Snow Rider 3D</button>
+
+    <iframe id="gameFrame" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame2" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame3" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame4" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame5" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame6" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame7" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame8" src="" allowfullscreen></iframe>
   </div>
 
-  <iframe id="gameFrame1" allowfullscreen></iframe>
-  <iframe id="gameFrame2" allowfullscreen></iframe>
-  <iframe id="gameFrame3" allowfullscreen></iframe>
-  <iframe id="gameFrame4" allowfullscreen></iframe>
-  <iframe id="gameFrame5" allowfullscreen></iframe>
-  <iframe id="gameFrame6" allowfullscreen></iframe>
-  <iframe id="gameFrame7" allowfullscreen></iframe>
-
   <script>
-    function showFrame(frameId, url) {
-      hideAllFrames();
-      const iframe = document.getElementById(frameId);
-      iframe.src = url;
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
     function goBack() {
       hideAllFrames();
       document.getElementById("backButton").style.display = "none";
     }
 
-    function hideAllFrames() {
-      document.querySelectorAll("iframe").forEach(frame => {
-        frame.style.display = "none";
-        frame.src = "";
-      });
+    function launchGame7() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame7');
+      iframe.src = "https://gibbat2.github.io/Games/games/subway-surfers/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
     }
 
-    function fullscreen(frameId) {
-      const iframe = document.getElementById(frameId);
-      if (iframe.requestFullscreen) {
-        iframe.requestFullscreen();
-      } else if (iframe.webkitRequestFullscreen) {
-        iframe.webkitRequestFullscreen();
-      } else if (iframe.msRequestFullscreen) {
-        iframe.msRequestFullscreen();
+    function launchGame8() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame8');
+      iframe.src = "https://gibbat2.github.io/Games/games/stickman-golf/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function launchGame6() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame6');
+      iframe.src = "https://gibbat2.github.io/Games/games/basketball-random/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function launchGame5() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame5');
+      iframe.src = "https://daniezonmc.github.io/1.20/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function launchGame() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame3');
+      iframe.src = "https://www.hoodamath.com/games/snowrider3d.html";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function launchGame4() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame4');
+      iframe.src = "https://gibbat2.github.io/Games/games/drifthunters/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function launchGame3() {
+      hideAllFrames();
+      const iframe = document.getElementById('gameFrame2');
+      iframe.src = "https://gibbat2.github.io/Games/games/drivemad/";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function loadGame() {
+      hideAllFrames();
+      const iframe = document.getElementById("gameFrame");
+      iframe.src = "https://www.hoodamath.com/games/oppositeday.html";
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
+
+    function hideAllFrames() {
+      for (let i = 0; i <= 8; i++) {
+        const frame = document.getElementById(`gameFrame${i === 0 ? '' : i}`);
+        if (frame) frame.style.display = "none";
       }
     }
   </script>
