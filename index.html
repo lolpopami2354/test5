@@ -1,45 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Bubba's Gramama</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-color: #4B0082; /* dark purple */
+      background-color: #4B0082;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
 
     h1 {
-      margin-bottom: 20px;
-      font-size: 2.5em;
+      margin: 20px 0 10px;
+      font-size: 2em;
       color: #fff;
     }
 
     button {
-      padding: 15px 30px;
-      font-size: 18px;
+      padding: 12px 24px;
+      font-size: 16px;
       background-color: #0078D4;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-bottom: 30px;
+      margin: 5px;
     }
 
     button:hover {
       background-color: #005a9e;
     }
 
+    button.fullscreen {
+      background-color: #444;
+    }
+
+    button.fullscreen:hover {
+      background-color: #222;
+    }
+
     #backButton {
-      position: absolute;
+      position: fixed;
       top: 20px;
       left: 20px;
       padding: 10px 20px;
@@ -50,19 +58,18 @@
       border-radius: 6px;
       cursor: pointer;
       display: none;
-    }
-
-    #backButton:hover {
-      background-color: #333;
+      z-index: 1000;
     }
 
     iframe {
-      width: 1200px;
+      width: 90%;
+      max-width: 1200px;
       height: 600px;
       border: 2px solid #ccc;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       display: none;
+      margin: 20px 0;
     }
   </style>
 </head>
@@ -72,129 +79,76 @@
   <button id="backButton" onclick="goBack()">⬅ Back</button>
   <h1>WELCOME to Bubba's Gramama</h1>
   <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
-  <input type="text" id="searchInput" placeholder="Search for a game..." oninput="searchGame()" style="padding: 10px; font-size: 16px; border-radius: 6px; border: none; margin-bottom: 20px; width: 300px;">
-<div id="searchResult" style="color: white; font-size: 18px; margin-bottom: 20px;"></div>
 
+  <div id="gameButtons">
+    <h1>Stickman Golf</h1>
+    <button onclick="showFrame('gameFrame7', 'https://gibbat2.github.io/Games/games/stickman-golf/')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame7')">🔳 Fullscreen</button>
 
-  <center>
     <h1>Basketball Random</h1>
-    <button onclick="launchGame6()">Play Basketball Random</button>
-    
+    <button onclick="showFrame('gameFrame6', 'https://gibbat2.github.io/Games/games/basketball-random/')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame6')">🔳 Fullscreen</button>
+
     <h1>Minecraft</h1>
-    <button onclick="launchGame5()">Play Minecraft</button>
-    
-    <h1>!DRIFT HUNTERS!</h1>
-    <button onclick="launchGame4()">Play Drift Hunters</button>
-    
-    <h1>Drive Mad!</h1>
-    <button onclick="launchGame3()">Play Drive Mad</button>
+    <button onclick="showFrame('gameFrame5', 'https://daniezonmc.github.io/1.20/')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame5')">🔳 Fullscreen</button>
+
+    <h1>Drift Hunters</h1>
+    <button onclick="showFrame('gameFrame4', 'https://gibbat2.github.io/Games/games/drifthunters/')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame4')">🔳 Fullscreen</button>
+
+    <h1>Drive Mad</h1>
+    <button onclick="showFrame('gameFrame3', 'https://gibbat2.github.io/Games/games/drivemad/')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame3')">🔳 Fullscreen</button>
 
     <h1>Opposite Day</h1>
-    <button onclick="loadGame()">Don't play Opposite Day</button>
+    <button onclick="showFrame('gameFrame2', 'https://www.hoodamath.com/games/oppositeday.html')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame2')">🔳 Fullscreen</button>
 
     <h1>❄️ Snow Rider 3D</h1>
-    <button onclick="launchGame()">Play Snow Rider 3D</button>
+    <button onclick="showFrame('gameFrame1', 'https://www.hoodamath.com/games/snowrider3d.html')">Play</button>
+    <button class="fullscreen" onclick="fullscreen('gameFrame1')">🔳 Fullscreen</button>
+  </div>
 
-    <iframe id="gameFrame" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame2" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame3" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame4" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame5" src="" allowfullscreen></iframe>
-    <iframe id="gameFrame6" src="" allowfullscreen></iframe>
-  </center>
+  <iframe id="gameFrame1" allowfullscreen></iframe>
+  <iframe id="gameFrame2" allowfullscreen></iframe>
+  <iframe id="gameFrame3" allowfullscreen></iframe>
+  <iframe id="gameFrame4" allowfullscreen></iframe>
+  <iframe id="gameFrame5" allowfullscreen></iframe>
+  <iframe id="gameFrame6" allowfullscreen></iframe>
+  <iframe id="gameFrame7" allowfullscreen></iframe>
 
   <script>
-    function searchGame() {
-  const input = document.getElementById("searchInput").value.toLowerCase();
-  const result = document.getElementById("searchResult");
-
-  const games = {
-    "basketball random": launchGame6,
-    "minecraft": launchGame5,
-    "drift hunters": launchGame4,
-    "drive mad": launchGame3,
-    "opposite day": loadGame,
-    "snow rider 3d": launchGame
-  };
-
-  if (input.trim() === "") {
-    result.textContent = "";
-    return;
-  }
-
-  const match = Object.keys(games).find(game => game.includes(input));
-  if (match) {
-    result.innerHTML = `Found: <strong>${match}</strong> — <button onclick="${games[match].name}()">Play</button>`;
-  } else {
-    result.textContent = "No matching game found.";
-  }
-}
+    function showFrame(frameId, url) {
+      hideAllFrames();
+      const iframe = document.getElementById(frameId);
+      iframe.src = url;
+      iframe.style.display = "block";
+      document.getElementById("backButton").style.display = "inline-block";
+    }
 
     function goBack() {
-      document.getElementById("gameFrame").style.display = "none";
-      document.getElementById("gameFrame2").style.display = "none";
-      document.getElementById("gameFrame3").style.display = "none";
-      document.getElementById("gameFrame4").style.display = "none";
+      hideAllFrames();
       document.getElementById("backButton").style.display = "none";
-      document.getElementById("gameFrame5").style.display = "none";
-      document.getElementById("gameFrame6").style.display = "none";
-    }
-    function launchGame6() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame6');
-      iframe.src = "https://gibbat2.github.io/Games/games/basketball-random/";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-      
-    function launchGame5() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame5');
-      iframe.src = "https://daniezonmc.github.io/1.20/";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
-    function launchGame() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame5');
-      iframe.src = "";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
-    function launchGame4() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame4');
-      iframe.src = "https://gibbat2.github.io/Games/games/drifthunters/";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-
-    function loadGame() {
-      hideAllFrames();
-      const iframe = document.getElementById("gameFrame2");
-      iframe.src = "https://www.hoodamath.com/games/oppositeday.html";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
-    }
-    function launchGame3() {
-      hideAllFrames();
-      const iframe = document.getElementById('gameFrame4');
-      iframe.src = "https://gibbat2.github.io/Games/games/drivemad/";
-      iframe.style.display = "block";
-      document.getElementById("backButton").style.display = "inline-block";
     }
 
     function hideAllFrames() {
-      document.getElementById("gameFrame").style.display = "none";
-      document.getElementById("gameFrame2").style.display = "none";
-      document.getElementById("gameFrame3").style.display = "none";
-      document.getElementById("gameFrame4").style.display = "none";
-      document.getElementById("gameFrame5").style.display = "none";
-      document.getElementById("gameFrame6").style.display = "none";
+      document.querySelectorAll("iframe").forEach(frame => {
+        frame.style.display = "none";
+        frame.src = "";
+      });
+    }
+
+    function fullscreen(frameId) {
+      const iframe = document.getElementById(frameId);
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
+      } else if (iframe.msRequestFullscreen) {
+        iframe.msRequestFullscreen();
+      }
     }
   </script>
-
 </body>
 </html>
