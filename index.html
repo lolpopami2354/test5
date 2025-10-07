@@ -2,71 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Access Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: radial-gradient(ellipse at center, #0f0f0f 0%, #000000 100%);
-      color: #00ffe7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
-    }
-
-    h2 {
-      font-size: 2em;
-      text-shadow: 0 0 10px #00ffe7;
-    }
-
-    input {
-      padding: 10px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      background-color: #111;
-      color: #00ffe7;
-      box-shadow: 0 0 10px #00ffe7;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      background-color: #00ffe7;
-      color: #000;
-      cursor: pointer;
-      box-shadow: 0 0 10px #00ffe7;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #00bfa5;
-    }
-  </style>
+  <title>Redirecting...</title>
+  <script>
+    window.onload = function() {
+      const win = window.open('about:blank', '_blank');
+      if (win) {
+        const iframe = win.document.createElement('iframe');
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.src = window.location.href; // Load this page inside the new tab
+        win.document.body.style.margin = "0";
+        win.document.body.appendChild(iframe);
+        window.close(); // Close the original tab
+      } else {
+        document.body.innerHTML = "<h1 style='color:white; text-align:center;'>Popup blocked. Please allow popups and reload.</h1>";
+        document.body.style.backgroundColor = "black";
+      }
+    };
+  </script>
 </head>
 <body>
-  <h2>🔐 Enter Access Code</h2>
-  <input type="text" id="codeInput" placeholder="Type your code..." />
-  <button onclick="checkCode()">Engage</button>
-
-  <script>
-    function checkCode() {
-      const input = document.getElementById('codeInput').value.trim();
-      if (input.toLowerCase() === '13gramamas') {
-        window.location.href = 'https://lolpopami2354.github.io/test4/'; // Replace with your destination
-      } else {
-        alert('Access Denied. Invalid Code.');
-      }
-    }
-  </script>
 </body>
 </html>
