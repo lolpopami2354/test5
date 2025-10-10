@@ -327,7 +327,7 @@
 
     function onUnlock() {
       // Example action when unlock button is clicked: open the Snow Rider game
-      launchGame(); // you can change this to another action or redirect
+      unlockedcode(); // you can change this to another action or redirect
       // optionally hide the unlock button after use
       document.getElementById('unlockButton').style.display = 'none';
       document.getElementById('codeInput').value = '';
@@ -368,6 +368,7 @@
     function launchGame3()  { showFrame('gameFrame2',  "https://gibbat2.github.io/Games/games/drivemad/"); }
     function loadGame()      { showFrame('gameFrame',   "https://www.hoodamath.com/games/oppositeday.html"); }
     function launchGame()    { showFrame('gameFrame3',  "https://www.hoodamath.com/games/snowrider3d.html"); }
+    function unlockedcode()    { showFrame('gameFrame3',  "https://helios-blue.vercel.app/?sca_esv=fe0ebb4ec3b321c8&ie=ISO-8859-1&q=hello&oq=&aqs="); }
 
     /* Optional: allow pressing Enter to submit code */
     document.getElementById('codeInput').addEventListener('keydown', function(e){
