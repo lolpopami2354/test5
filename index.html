@@ -2,32 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Unlock Button</title>
+  <title>Galactic Access Portal</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(ellipse at center, #0b0c2a 0%, #000000 100%);
+      color: #ffffff;
+      text-align: center;
+      height: 100vh;
+      overflow: hidden;
     }
-    #unlockButton {
-      display: none;
+
+    h2 {
+      margin-top: 60px;
+      font-size: 2em;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    #codeInput {
+      padding: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background-color: #1a1a3d;
+      color: #00ffff;
+      box-shadow: 0 0 10px #00ffff;
+      margin-top: 20px;
+    }
+
+    button {
       margin-top: 20px;
       padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
+      font-size: 18px;
       border: none;
+      border-radius: 5px;
+      background-color: #00ffff;
+      color: #000;
       cursor: pointer;
+      box-shadow: 0 0 15px #00ffff;
+      transition: transform 0.2s ease;
     }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+
+    #unlockButton {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .stars::before {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      box-shadow: 
+        50px 100px white,
+        200px 300px white,
+        400px 150px white,
+        600px 250px white,
+        800px 100px white,
+        1000px 200px white;
+      animation: twinkle 2s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.2; }
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
   </style>
 </head>
 <body>
 
-  <h2>Enter Access Code</h2>
+  <div class="stars"></div>
+
+  <h2>Enter Galactic Access Code</h2>
   <input type="text" id="codeInput" placeholder="Enter code here">
+  <br>
   <button onclick="checkCode()">Submit</button>
 
-  <button id="unlockButton">Unlocked Feature</button>
+  <button id="unlockButton" onClick="OpenGame()">🚀 Launch Sequence Activated</button>
 
   <script>
+
+    function OpenGame() {
+      var win = window.open()
+var url = "https://youtube.com"
+var iframe = win.document.createElement('iframe')
+iframe.style.width = "100%";
+iframe.style.height = "100%";
+iframe.style.border = "none";
+iframe.src = url
+win.document.body.appendChild(iframe)
+    }
+    
     function checkCode() {
       const input = document.getElementById('codeInput').value;
       const button = document.getElementById('unlockButton');
@@ -35,7 +119,7 @@
         button.style.display = 'inline-block';
       } else {
         button.style.display = 'none';
-        alert('Incorrect code. Try again.');
+        alert('Access Denied. Incorrect Code.');
       }
     }
   </script>
