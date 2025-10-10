@@ -2,26 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Redirecting...</title>
-  <script>
-    window.onload = function() {
-      const win = window.open('about:blank', '_blank');
-      if (win) {
-        const iframe = win.document.createElement('iframe');
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        iframe.style.border = "none";
-        iframe.src = window.location.href; // Load this page inside the new tab
-        win.document.body.style.margin = "0";
-        win.document.body.appendChild(iframe);
-        window.close(); // Close the original tab
-      } else {
-        document.body.innerHTML = "<h1 style='color:white; text-align:center;'>Popup blocked. Please allow popups and reload.</h1>";
-        document.body.style.backgroundColor = "black";
-      }
-    };
-  </script>
+  <title>Unlock Button</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #unlockButton {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+
+  <h2>Enter Access Code</h2>
+  <input type="text" id="codeInput" placeholder="Enter code here">
+  <button onclick="checkCode()">Submit</button>
+
+  <button id="unlockButton">Unlocked Feature</button>
+
+  <script>
+    function checkCode() {
+      const input = document.getElementById('codeInput').value;
+      const button = document.getElementById('unlockButton');
+      if (input === '2354') {
+        button.style.display = 'inline-block';
+      } else {
+        button.style.display = 'none';
+        alert('Incorrect code. Try again.');
+      }
+    }
+  </script>
+
 </body>
 </html>
