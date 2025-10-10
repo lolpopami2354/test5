@@ -2,127 +2,377 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Galactic Access Portal</title>
+  <title>Bubba's Gramama</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="bubbasgramamaa.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
+    :root{
+      --bg-dark:#05021a;
+      --bg-mid:#0b0c2a;
+      --accent:#00ffff;
+      --panel:#1a1a3d;
+      --btn:#00ffff;
+      --muted:#cfc6ff;
+    }
+
+    /* Page base */
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: radial-gradient(ellipse at center, #0b0c2a 0%, #000000 100%);
+      background: radial-gradient(ellipse at center, var(--bg-mid) 0%, #000000 100%), linear-gradient(180deg, rgba(255,255,255,0.02) 0, transparent 100%);
       color: #ffffff;
-      text-align: center;
-      height: 100vh;
-      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, "Segoe UI Emoji", "Orbitron", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    h2 {
-      margin-top: 60px;
-      font-size: 2em;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
+    /* Stars layer */
+    .stars, .stars2, .nebula {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-25%, -25%);
+      opacity: 0.9;
+      mix-blend-mode: screen;
     }
-
-    #codeInput {
-      padding: 10px;
-      font-size: 18px;
-      border: none;
-      border-radius: 5px;
-      background-color: #1a1a3d;
-      color: #00ffff;
-      box-shadow: 0 0 10px #00ffff;
-      margin-top: 20px;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      border: none;
-      border-radius: 5px;
-      background-color: #00ffff;
-      color: #000;
-      cursor: pointer;
-      box-shadow: 0 0 15px #00ffff;
-      transition: transform 0.2s ease;
-    }
-
-    button:hover {
-      transform: scale(1.1);
-    }
-
-    #unlockButton {
-      display: none;
-      margin-top: 30px;
-    }
-
-    .stars {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      overflow: hidden;
-      z-index: -1;
-    }
-
-    .stars::before {
-      content: '';
+    .stars { background: transparent; }
+    .stars::after {
+      content: "";
       position: absolute;
       width: 2px;
       height: 2px;
       background: white;
-      box-shadow: 
-        50px 100px white,
-        200px 300px white,
-        400px 150px white,
-        600px 250px white,
-        800px 100px white,
-        1000px 200px white;
-      animation: twinkle 2s infinite ease-in-out;
+      box-shadow:
+        50px 100px white, 200px 300px white, 400px 150px white, 600px 250px white,
+        800px 100px white, 1000px 200px white, 1200px 50px white, 1400px 350px white,
+        1600px 220px white, 1800px 120px white;
+      animation: twinkle 2.5s infinite ease-in-out;
     }
-
+    .stars2::after {
+      content: "";
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      background: #aaf0ff;
+      box-shadow:
+        120px 80px #aaf0ff, 320px 240px #aaf0ff, 720px 150px #aaf0ff, 920px 450px #aaf0ff,
+        1320px 100px #aaf0ff, 1720px 300px #aaf0ff;
+      opacity: 0.6;
+      animation: twinkle 3.5s infinite ease-in-out;
+    }
     @keyframes twinkle {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 0.2; }
+      0%,100% { opacity: 0.9; transform: translateY(0); }
+      50% { opacity: 0.3; transform: translateY(2px); }
+    }
+    .nebula {
+      background: radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),
+                  radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);
+      z-index: 0;
+      mix-blend-mode: overlay;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header and visual */
+    h1.site-title {
+      margin: 10px 0 6px;
+      font-size: 2rem;
+      color: var(--accent);
+      text-shadow: 0 0 12px rgba(0,255,255,0.14), 0 6px 30px rgba(0,0,0,0.6);
+      letter-spacing: 1px;
+    }
+    .gif {
+      margin: 16px 0 28px;
+      max-width: 90%;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,255,0.06) inset;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Game headings and buttons */
+    .game-block {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .game-block h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--muted);
+    }
+    .game-block button {
+      padding: 12px 18px;
+      font-size: 16px;
+      background: linear-gradient(180deg, var(--btn), #00cfcf);
+      color: #001;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 22px rgba(0,255,255,0.12);
+      transition: transform .15s ease, box-shadow .15s ease;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .game-block button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 30px rgba(0,255,255,0.16); }
+
+    /* Back button */
+    #backButton {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 18px;
+      font-size: 16px;
+      background-color: rgba(85,85,85,0.9);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      z-index: 3;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+
+    /* Iframes */
+    iframe {
+      width: 1200px;
+      max-width: 100%;
+      height: 600px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+      display: none;
+      margin-top: 24px;
+      z-index: 2;
+      background: #000;
+    }
+
+    /* Spacey code box panel */
+    .access-panel {
+      width: 100%;
+      max-width: 760px;
+      margin: 22px 0 30px;
+      padding: 18px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(10,12,30,0.6), rgba(14,10,30,0.35));
+      border: 1px solid rgba(0,255,255,0.06);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,255,255,0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .access-panel h3 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 1.2rem;
+      text-shadow: 0 0 10px rgba(0,255,255,0.12);
+      font-family: 'Orbitron', sans-serif;
+    }
+    .code-row {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+    #codeInput {
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--panel);
+      color: var(--accent);
+      box-shadow: 0 0 18px rgba(0,255,255,0.06);
+      outline: none;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .submit-btn {
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--btn), #00cfcf);
+      color: #001;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,255,255,0.12);
+      transition: transform .12s ease;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .submit-btn:hover { transform: translateY(-3px); }
+
+    #unlockButton {
+      display: none;
+      padding: 12px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffd48f, #ff9e3b);
+      color: #080808;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(255,160,40,0.12);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Responsive */
+    @media (max-width:820px){
+      .game-block { flex-direction: column; align-items: stretch; text-align: left; }
+      .code-row { flex-direction: column; gap: 10px; }
+      iframe { height: 480px; }
+    }
   </style>
 </head>
 <body>
-
   <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="nebula"></div>
 
-  <h2>Enter Galactic Access Code</h2>
-  <input type="text" id="codeInput" placeholder="Enter code here">
-  <br>
-  <button onclick="checkCode()">Submit</button>
+  <button id="backButton" onclick="goBack()">⬅ Back</button>
 
-  <button id="unlockButton" onClick="OpenGame()">🚀 Launch Sequence Activated</button>
+  <div class="container">
+    <h1 class="site-title">WELCOME to Bubba's Gramama</h1>
+
+    <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
+
+    <!-- Space-themed Code Unlock Panel -->
+    <div class="access-panel" aria-label="Galactic access panel">
+      <h3>Enter Galactic Access Code</h3>
+      <div class="code-row">
+        <input id="codeInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="• • • •" aria-label="Access code">
+        <button class="submit-btn" onclick="checkCode()">Submit</button>
+      </div>
+      <button id="unlockButton" onclick="onUnlock()">🚀 Launch Sequence Activated</button>
+    </div>
+
+    <!-- Game list -->
+    <div class="game-block"><h2>Hide and Smash</h2><button onclick="launchGame14()">Play Hide and Smash</button></div>
+    <div class="game-block"><h2>Pixle Gun 3d</h2><button onclick="launchGame13()">Play Pixle Gun 3d</button></div>
+    <div class="game-block"><h2>Idle Breakout</h2><button onclick="launchGame12()">Play Idle Breakout</button></div>
+    <div class="game-block"><h2>Crossy Road</h2><button onclick="launchGame11()">Play Crossy Road</button></div>
+    <div class="game-block"><h2>Slope</h2><button onclick="launchGame10()">Play Slope</button></div>
+    <div class="game-block"><h2>Bit Life</h2><button onclick="launchGame9()">Play Bit Life</button></div>
+    <div class="game-block"><h2>Subway Surfers</h2><button onclick="launchGame7()">Play Subway Surfers</button></div>
+    <div class="game-block"><h2>Stickman Golf</h2><button onclick="launchGame8()">Play Stickman Golf</button></div>
+    <div class="game-block"><h2>Basketball Random</h2><button onclick="launchGame6()">Play Basketball Random</button></div>
+    <div class="game-block"><h2>Minecraft</h2><button onclick="launchGame5()">Play Minecraft</button></div>
+    <div class="game-block"><h2>DRIFT HUNTERS</h2><button onclick="launchGame4()">Play Drift Hunters</button></div>
+    <div class="game-block"><h2>Drive Mad!</h2><button onclick="launchGame3()">Play Drive Mad</button></div>
+    <div class="game-block"><h2>Opposite Day</h2><button onclick="loadGame()">Don't play Opposite Day</button></div>
+    <div class="game-block"><h2>❄️ Snow Rider 3D</h2><button onclick="launchGame()">Play Snow Rider 3D</button></div>
+
+    <!-- Iframes -->
+    <iframe id="gameFrame" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame2" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame3" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame4" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame5" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame6" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame7" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame8" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame9" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame10" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame11" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame12" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame13" src="" allowfullscreen></iframe>
+    <iframe id="gameFrame14" src="" allowfullscreen></iframe>
+  </div>
 
   <script>
-
-    function OpenGame() {
-      var win = window.open()
-var url = "https://lolpopami2354.github.io/test4"
-var iframe = win.document.createElement('iframe')
-iframe.style.width = "100%";
-iframe.style.height = "100%";
-iframe.style.border = "none";
-iframe.src = url
-win.document.body.appendChild(iframe)
-    }
-    
+    /* Unlock logic */
     function checkCode() {
-      const input = document.getElementById('codeInput').value;
+      const input = document.getElementById('codeInput').value.trim();
       const button = document.getElementById('unlockButton');
       if (input === '2354') {
         button.style.display = 'inline-block';
+        // subtle visual feedback
+        button.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
       } else {
         button.style.display = 'none';
-        alert('Access Denied. Incorrect Code.');
+        // gentle shake for wrong code
+        const el = document.getElementById('codeInput');
+        el.animate([
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-8px)' },
+          { transform: 'translateX(8px)' },
+          { transform: 'translateX(0)' }
+        ], { duration: 260, iterations: 1 });
+        // non-blocking visual cue instead of an intrusive alert
       }
     }
-  </script>
 
+    function onUnlock() {
+      // Example action when unlock button is clicked: open the Snow Rider game
+      launchGame(); // you can change this to another action or redirect
+      // optionally hide the unlock button after use
+      document.getElementById('unlockButton').style.display = 'none';
+      document.getElementById('codeInput').value = '';
+    }
+
+    /* Navigation / frame control */
+    function goBack() {
+      hideAllFrames();
+      document.getElementById("backButton").style.display = "none";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideAllFrames() {
+      document.querySelectorAll('iframe').forEach(f => { f.style.display = 'none'; f.src = ''; });
+    }
+
+    function showFrame(id, src) {
+      hideAllFrames();
+      const iframe = document.getElementById(id);
+      if (!iframe) return;
+      iframe.src = src;
+      iframe.style.display = 'block';
+      document.getElementById("backButton").style.display = "inline-block";
+      window.scrollTo({ top: iframe.offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function launchGame14() { showFrame('gameFrame14', "https://gibbat2.github.io/Games/games/hideandsmash/"); }
+    function launchGame13() { showFrame('gameFrame13', "https://gibbat2.github.io/Games/games/pixelgun/"); }
+    function launchGame12() { showFrame('gameFrame12', "https://gibbat2.github.io/Games/games/idle-breakout/"); }
+    function launchGame11() { showFrame('gameFrame11', "https://gibbat2.github.io/Games/games/crossyroad/"); }
+    function launchGame10() { showFrame('gameFrame10', "https://gibbat2.github.io/Games/games/slope/"); }
+    function launchGame9()  { showFrame('gameFrame9',  "https://gibbat2.github.io/Games/games/bitlife/"); }
+    function launchGame8()  { showFrame('gameFrame8',  "https://gibbat2.github.io/Games/games/stickman-golf/"); }
+    function launchGame7()  { showFrame('gameFrame7',  "https://gibbat2.github.io/Games/games/subway-surfers/"); }
+    function launchGame6()  { showFrame('gameFrame6',  "https://gibbat2.github.io/Games/games/basketball-random/"); }
+    function launchGame5()  { showFrame('gameFrame5',  "https://daniezonmc.github.io/1.20/"); }
+    function launchGame4()  { showFrame('gameFrame4',  "https://gibbat2.github.io/Games/games/drifthunters/"); }
+    function launchGame3()  { showFrame('gameFrame2',  "https://gibbat2.github.io/Games/games/drivemad/"); }
+    function loadGame()      { showFrame('gameFrame',   "https://www.hoodamath.com/games/oppositeday.html"); }
+    function launchGame()    { showFrame('gameFrame3',  "https://www.hoodamath.com/games/snowrider3d.html"); }
+
+    /* Optional: allow pressing Enter to submit code */
+    document.getElementById('codeInput').addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); checkCode(); }
+    });
+  </script>
 </body>
 </html>
