@@ -19,6 +19,76 @@
 /* --------------------------
    Base Styles
 -------------------------- */
+
+.coin-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#coinDisplay {
+  font-size: 18px;
+  background: rgba(0, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  box-shadow: 0 0 10px rgba(0,255,255,0.1);
+}
+
+#shopToggle {
+  font-size: 16px;
+  background: rgba(0, 255, 255, 0.2);
+  color: #000;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  box-shadow: 0 6px 20px rgba(0,255,255,0.12);
+}
+
+.shop-panel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: rgba(5, 5, 20, 0.95);
+  border: 1px solid rgba(0,255,255,0.2);
+  border-radius: 12px;
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0,255,255,0.08);
+  z-index: 5;
+  width: 220px;
+  animation: dropdown 0.3s ease;
+}
+
+@keyframes dropdown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-family: 'Orbitron', sans-serif;
+}
+
+
 body {
   margin: 0;
   padding: 0;
@@ -315,6 +385,23 @@ iframe {
   <div class="stars2"></div>
   <div class="nebula"></div>
 
+  <div class="coin-container">
+    <span id="coinDisplay">🪙 0</span>
+    <button id="shopToggle" onclick="toggleShop()">🛒 Shop</button>
+  </div>
+
+<div class="shop-panel" id="shopPanel">
+  <h3>Game Shop</h3>
+  <div class="shop-item">
+    <span>Drive Mad</span>
+    <button onclick="buyGame('drivemad', 300)">Buy - 300🪙</button>
+  </div>
+  <div class="shop-item">
+    <span>Hide and Smash</span>
+    <button onclick="buyGame('hideandsmash', 200)">Buy - 200🪙</button>
+  </div>
+</div>
+
   <button id="backButton" onclick="goBack()">⬅ Back</button>
 
   <div class="container">
@@ -406,6 +493,70 @@ iframe {
       document.getElementById("backButton").style.display = "none";
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    let coins = parseInt(localStorage.getItem('coins') || '0');
+let ownedGames = JSON.parse(localStorage.getItem('ownedGames') || '{}');
+
+// Give 250 coins after 60 seconds
+setTimeout(() => {
+  coins += 250;
+  saveData();
+  updateCoinDisplay();
+  alert("You earned 250 🪙 for visiting!");
+}, 60000);
+
+function updateCoinDisplay() {
+  document.getElementById('coinDisplay').textContent = `🪙 ${coins}`;
+}
+
+function toggleShop() {
+  const shop = document.getElementById('shopPanel');
+  shop.style.display = shop.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function buyGame(gameId, cost) {
+  if (ownedGames[gameId]) {
+    alert("You already own this game.");
+    return;
+  }
+
+  if (coins >= cost) {
+    coins -= cost;
+    ownedGames[gameId] = true;
+    saveData();
+    updateCoinDisplay();
+    alert(`You bought ${gameId} 🎮!`);
+  } else {
+    alert("Not enough coins!");
+  }
+}
+
+function saveData() {
+  localStorage.setItem('coins', coins);
+  localStorage.setItem('ownedGames', JSON.stringify(ownedGames));
+}
+
+function launchGame(id) {
+  // If it's in the shop, check if purchased
+  if (['drivemad', 'hideandsmash'].includes(id) && !ownedGames[id]) {
+    alert("You need to buy this game first 🛒");
+    return;
+  }
+
+  const src = gameURLs[id];
+  if (!src) {
+    console.warn(`Game ID "${id}" not found.`);
+    return;
+  }
+  const iframe = document.getElementById("gameFrame");
+  iframe.src = src;
+  iframe.style.display = 'block';
+  document.getElementById("backButton").style.display = "inline-block";
+  window.scrollTo({ top: iframe.offsetTop - 20, behavior: 'smooth' });
+}
+
+updateCoinDisplay(); // Initial load
+
 
     document.getElementById('codeInput').addEventListener('keydown', function(e){
       if (e.key === 'Enter') {
