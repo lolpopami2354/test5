@@ -7,7 +7,7 @@
   <link rel="shortcut icon" type="image/x-icon" href="bubbasgramamaa.png" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-   :root {
+    :root {
   --bg-dark: #05021a;
   --bg-mid: #0b0c2a;
   --accent: #00ffff;
@@ -16,19 +16,26 @@
   --muted: #cfc6ff;
 }
 
-/* Page base */
+/* --------------------------
+   Base Styles
+-------------------------- */
 body {
   margin: 0;
   padding: 0;
-  background: radial-gradient(ellipse at center, var(--bg-mid) 0%, #000000 100%), linear-gradient(180deg, rgba(255,255,255,0.02) 0, transparent 100%);
+  background: radial-gradient(ellipse at center, var(--bg-mid) 0%, #000000 100%),
+              linear-gradient(180deg, rgba(255,255,255,0.02) 0, transparent 100%);
   color: #ffffff;
   font-family: 'Segoe UI', system-ui, -apple-system, "Segoe UI Emoji", "Orbitron", sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Stars layer */
-.stars, .stars2, .nebula {
+/* --------------------------
+   Background Layers
+-------------------------- */
+.stars,
+.stars2,
+.nebula {
   position: fixed;
   top: 0;
   left: 0;
@@ -40,7 +47,11 @@ body {
   opacity: 0.9;
   mix-blend-mode: screen;
 }
-.stars { background: transparent; }
+
+.stars {
+  background: transparent;
+}
+
 .stars::after {
   content: "";
   position: absolute;
@@ -48,11 +59,13 @@ body {
   height: 2px;
   background: white;
   box-shadow:
-    50px 100px white, 200px 300px white, 400px 150px white, 600px 250px white,
-    800px 100px white, 1000px 200px white, 1200px 50px white, 1400px 350px white,
-    1600px 220px white, 1800px 120px white;
+    50px 100px white, 200px 300px white, 400px 150px white,
+    600px 250px white, 800px 100px white, 1000px 200px white,
+    1200px 50px white, 1400px 350px white, 1600px 220px white,
+    1800px 120px white;
   animation: twinkle 2.5s infinite ease-in-out;
 }
+
 .stars2::after {
   content: "";
   position: absolute;
@@ -60,23 +73,35 @@ body {
   height: 1px;
   background: #aaf0ff;
   box-shadow:
-    120px 80px #aaf0ff, 320px 240px #aaf0ff, 720px 150px #aaf0ff, 920px 450px #aaf0ff,
+    120px 80px #aaf0ff, 320px 240px #aaf0ff,
+    720px 150px #aaf0ff, 920px 450px #aaf0ff,
     1320px 100px #aaf0ff, 1720px 300px #aaf0ff;
   opacity: 0.6;
   animation: twinkle 3.5s infinite ease-in-out;
 }
+
 @keyframes twinkle {
-  0%,100% { opacity: 0.9; transform: translateY(0); }
-  50% { opacity: 0.3; transform: translateY(2px); }
+  0%, 100% {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateY(2px);
+  }
 }
+
 .nebula {
-  background: radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),
-              radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);
+  background:
+    radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),
+    radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);
   z-index: 0;
   mix-blend-mode: overlay;
 }
 
-/* Container */
+/* --------------------------
+   Layout & Containers
+-------------------------- */
 .container {
   position: relative;
   z-index: 2;
@@ -88,7 +113,6 @@ body {
   margin: 0 auto;
 }
 
-/* Header and visual */
 h1.site-title {
   margin: 10px 0 6px;
   font-size: 2rem;
@@ -96,6 +120,7 @@ h1.site-title {
   text-shadow: 0 0 12px rgba(0,255,255,0.14), 0 6px 30px rgba(0,0,0,0.6);
   letter-spacing: 1px;
 }
+
 .gif {
   margin: 16px 0 28px;
   max-width: 90%;
@@ -104,7 +129,9 @@ h1.site-title {
   border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Game headings and buttons */
+/* --------------------------
+   Game Block
+-------------------------- */
 .game-block {
   width: 100%;
   display: flex;
@@ -118,11 +145,13 @@ h1.site-title {
   border: 1px solid rgba(255,255,255,0.03);
   box-shadow: 0 6px 18px rgba(0,0,0,0.5);
 }
+
 .game-block h2 {
   margin: 0;
   font-size: 1.05rem;
   color: var(--muted);
 }
+
 .game-block button {
   padding: 12px 18px;
   font-size: 16px;
@@ -135,12 +164,15 @@ h1.site-title {
   transition: transform .15s ease, box-shadow .15s ease;
   font-family: 'Orbitron', sans-serif;
 }
+
 .game-block button:hover {
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 10px 30px rgba(0,255,255,0.16);
 }
 
-/* Back button */
+/* --------------------------
+   Back Button
+-------------------------- */
 #backButton {
   position: fixed;
   top: 20px;
@@ -157,7 +189,9 @@ h1.site-title {
   box-shadow: 0 6px 20px rgba(0,0,0,0.6);
 }
 
-/* Iframes */
+/* --------------------------
+   Iframes
+-------------------------- */
 iframe {
   width: 1200px;
   max-width: 100%;
@@ -171,7 +205,9 @@ iframe {
   background: #000;
 }
 
-/* Spacey code box panel */
+/* --------------------------
+   Code Access Panel
+-------------------------- */
 .access-panel {
   width: 100%;
   max-width: 760px;
@@ -186,6 +222,7 @@ iframe {
   align-items: center;
   gap: 12px;
 }
+
 .access-panel h3 {
   margin: 0;
   color: var(--accent);
@@ -193,6 +230,7 @@ iframe {
   text-shadow: 0 0 10px rgba(0,255,255,0.12);
   font-family: 'Orbitron', sans-serif;
 }
+
 .code-row {
   display: flex;
   gap: 12px;
@@ -200,6 +238,7 @@ iframe {
   justify-content: center;
   align-items: center;
 }
+
 #codeInput {
   flex: 1;
   min-width: 160px;
@@ -215,6 +254,7 @@ iframe {
   letter-spacing: 2px;
   text-align: center;
 }
+
 .submit-btn {
   padding: 12px 18px;
   font-size: 16px;
@@ -227,7 +267,46 @@ iframe {
   transition: transform .12s ease;
   font-family: 'Orbitron', sans-serif;
 }
-.submit-btn:hover { transform: translateY(-3px
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* --------------------------
+   Unlock Button
+-------------------------- */
+#unlockButton {
+  display: none;
+  padding: 12px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffd48f, #ff9e3b);
+  color: #080808;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(255,160,40,0.12);
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* --------------------------
+   Responsive
+-------------------------- */
+@media (max-width: 820px) {
+  .game-block {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .code-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  iframe {
+    height: 480px;
+  }
+}
 
   </style>
 </head>
