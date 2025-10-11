@@ -484,23 +484,40 @@ iframe {
       'secret': "https://helios-blue.vercel.app/?sca_esv=fe0ebb4ec3b321c8&ie=ISO-8859-1&q=hello&oq=&aqs="
     };
 
-    function checkCode() {
-      const input = document.getElementById('codeInput').value.trim();
-      const button = document.getElementById('unlockButton');
-      if (input === '2354') {
-        button.style.display = 'inline-block';
-        button.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
-      } else {
-        button.style.display = 'none';
-        const el = document.getElementById('codeInput');
-        el.animate([
-          { transform: 'translateX(0)' },
-          { transform: 'translateX(-8px)' },
-          { transform: 'translateX(8px)' },
-          { transform: 'translateX(0)' }
-        ], { duration: 260, iterations: 1 });
-      }
-    }
+   let launchTimeout;
+
+function checkCode() {
+  const input = document.getElementById('codeInput').value.trim();
+  const button = document.getElementById('unlockButton');
+
+  if (input === '2354') {
+    button.style.display = 'inline-block';
+    button.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], {
+      duration: 220,
+      easing: 'ease-out'
+    });
+
+    clearTimeout(launchTimeout); // Reset if previously triggered
+
+    // Set 10-second timeout to hide the launch button
+    launchTimeout = setTimeout(() => {
+      button.style.display = 'none';
+    }, 10000);
+
+  } else {
+    button.style.display = 'none';
+
+    // Shake animation for wrong input
+    const el = document.getElementById('codeInput');
+    el.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-8px)' },
+      { transform: 'translateX(8px)' },
+      { transform: 'translateX(0)' }
+    ], { duration: 260, iterations: 1 });
+  }
+}
+
 
     function launchGame(id) {
       const src = gameURLs[id];
