@@ -829,33 +829,43 @@
     }
 
     /* shooting stars (lightweight) */
-    function spawnShootingStar(){
-      const star = document.createElement('div');
-      star.className = 'shooting-star';
-      const length = Math.random()*120 + 40;
-      const thickness = Math.random()*2 + 1;
-      star.style.width = `${thickness}px`;
-      star.style.height = `${length}px`;
-      star.style.position = 'absolute';
-      star.style.borderRadius = '2px';
-      star.style.background = 'linear-gradient(-45deg, rgba(255,255,255,1), rgba(255,255,255,0.15))';
-      const startX = Math.random() * (window.innerWidth * 0.8);
-      const startY = Math.random() * (window.innerHeight * 0.4);
-      star.style.left = `${startX}px`;
-      star.style.top = `${startY}px`;
-      star.style.opacity = '1';
-      star.style.transform = `rotate(${Math.random()*40 - 20}deg)`;
-      document.body.appendChild(star);
-      const dx = (Math.random()*600)+200;
-      const dy = (Math.random()*200)+50;
-      const angle = Math.random()*20 + 10;
-      const duration = Math.random()*800 + 900;
-      const anim = star.animate([
-        { transform: `translate(0px,0px) rotate(0deg)`, opacity: 1 },
-        { transform: `translate(${dx}px,${dy}px) rotate(${angle}deg)`, opacity: 0 }
-      ], { duration: duration, easing: 'cubic-bezier(.2,.8,.2,1)'});
-      anim.onfinish = () => star.remove();
-    }
+
+    function spawnShootingStar() {
+  const star = document.createElement('div');
+  star.className = 'shooting-star';
+  const size = Math.random() * 2 + 1; // size of the star
+  star.style.width = `${size}px`;
+  star.style.height = `${size}px`;
+  star.style.background = 'white';
+  star.style.opacity = Math.random() * 0.8 + 0.2;
+  star.style.borderRadius = '50%';
+  
+  const startX = Math.random() * window.innerWidth;
+  const startY = Math.random() * window.innerHeight * 0.5;
+  const endX = startX + (Math.random() * 300 + 200);
+  const endY = startY + (Math.random() * 100 + 50);
+  star.style.left = `${startX}px`;
+  star.style.top = `${startY}px`;
+
+  // trail effect
+  star.style.boxShadow = `0 0 6px 2px rgba(255,255,255,0.6), 0 0 12px 4px rgba(255,255,255,0.3)`;
+
+  document.body.appendChild(star);
+
+  const duration = Math.random() * 2000 + 1500;
+  star.animate([
+    { transform: `translate(0px,0px)`, opacity: star.style.opacity },
+    { transform: `translate(${endX - startX}px, ${endY - startY}px)`, opacity: 0 }
+  ], { duration, easing: 'ease-out', iterations: 1 });
+
+  setTimeout(() => star.remove(), duration);
+}
+
+// spawn multiple shooting stars randomly
+setInterval(() => {
+  if (Math.random() < 0.3) spawnShootingStar(); // ~30% chance every interval
+}, 400);
+    
     function shootingStarLoop(){ spawnShootingStar(); setTimeout(shootingStarLoop, Math.random()*5200+800); }
     setTimeout(shootingStarLoop, 1200);
 
