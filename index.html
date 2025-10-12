@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Bubba's Gramama — Admin Email + Password Lock</title>
+  <title>Bubba's Gramama — Admin Email + Password Lock + User Timer</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -13,6 +13,28 @@
       color:#fff;font-family:'Segoe UI',system-ui,-apple-system,"Orbitron",sans-serif;overflow-x:hidden}
     .container{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding:40px 20px;max-width:1200px;margin:0 auto}
     h1.site-title{margin:10px 0 6px;font-size:2rem;color:var(--accent);text-shadow:0 0 12px rgba(0,255,255,0.14),0 6px 30px rgba(0,0,0,0.6);letter-spacing:1px}
+
+    /* User badge (top-left) */
+    .user-badge {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 40;
+      background: linear-gradient(90deg, rgba(0,255,255,0.06), rgba(0,0,0,0.18));
+      border: 1px solid rgba(0,255,255,0.14);
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: var(--accent);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      box-shadow: 0 6px 26px rgba(0,255,255,0.06);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 200px;
+    }
+    .user-badge .name { font-size: 14px; letter-spacing: 0.5px; }
+    .user-badge .time { font-size: 13px; color: rgba(207,198,255,0.9); font-weight:600; }
 
     /* top UI */
     .coin-container{position:fixed;top:20px;right:20px;z-index:14;display:flex;align-items:center;gap:10px}
@@ -74,6 +96,12 @@
 </head>
 <body>
   <div class="stars"></div><div class="stars2"></div><div class="nebula"></div>
+
+  <!-- User badge (top-left) -->
+  <div id="userBadge" class="user-badge" aria-live="polite">
+    <div class="name" id="userName">Guest</div>
+    <div class="time" id="userTime">00:00:00</div>
+  </div>
 
   <div class="coin-container">
     <button id="dailyRewardBtn" class="top-btn" onclick="claimDailyReward()">🎁 Daily Reward</button>
@@ -176,14 +204,9 @@
   <script>
     /* ---------------------------
        Config (edit here)
-       --------------------------- */
-    // Allowed admin email (lowercase compare)
+    --------------------------- */
     const ADMIN_EMAIL = 'bywhitley@s.sfusd.edu'.toLowerCase();
-
-    // Client-side admin password (change this string before sharing)
-    // NOTE: this is client-side only. Use a server-based login for true security.
-    const ADMIN_PASSWORD = 'BubbaAdmin2025!';
-
+    const ADMIN_PASSWORD = 'BubbaAdmin2025!'; // change before sharing
     const ADMIN_MAX_ATTEMPTS = 5;
     const ADMIN_LOCK_MS = 60 * 1000; // 60 seconds lock after too many failed attempts
 
@@ -212,6 +235,102 @@
     function saveData(){ localStorage.setItem('coins', String(coins)); localStorage.setItem('ownedGames', JSON.stringify(ownedGames)); }
     function updateCoinDisplay(){ document.getElementById('coinDisplay').textContent = `🪙 ${coins}`; }
     function updateShopButtons(){ document.querySelectorAll('.buy-button').forEach(btn=>{ const gid = btn.dataset.game; const cost = btn.dataset.cost || ''; if (gid && ownedGames[gid]) { btn.classList.add('owned'); btn.textContent = 'Owned'; btn.disabled = true; } else { btn.classList.remove('owned'); btn.disabled = false; btn.textContent = cost ? `Buy - ${cost}🪙` : 'Buy'; } }); }
+
+    // ---------- USER BADGE & CUMULATIVE TIME ----------
+    // storage keys used:
+    // - 'playerName' (string)
+    // - 'timeSpentSeconds' (integer, cumulative seconds across all sessions)
+
+    let sessionStart = Date.now();
+    let sessionTimerInterval = null;
+
+    function formatDuration(seconds) {
+      seconds = Math.max(0, Math.floor(seconds));
+      const days = Math.floor(seconds / 86400);
+      seconds = seconds % 86400;
+      const hrs = Math.floor(seconds / 3600);
+      seconds = seconds % 3600;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      if (days > 0) return `${days}d ${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }
+
+    function getTotalStoredSeconds() {
+      const raw = localStorage.getItem('timeSpentSeconds');
+      const n = parseInt(raw || '0', 10);
+      return Number.isNaN(n) ? 0 : n;
+    }
+
+    function saveTotalStoredSeconds(val) {
+      localStorage.setItem('timeSpentSeconds', String(Math.max(0, Math.floor(val))));
+    }
+
+    function getPlayerName() {
+      return (localStorage.getItem('playerName') || '').trim() || null;
+    }
+
+    // If no playerName set, prompt once.
+    function ensurePlayerName() {
+      let name = getPlayerName();
+      if (!name) {
+        // prompt the user to enter their display name (used by leaderboard and badge)
+        name = prompt("Enter your name (this will appear on the leaderboard and top-left badge):", "Guest") || "Guest";
+        localStorage.setItem('playerName', name);
+      }
+      updateUserBadgeName();
+    }
+
+    function updateUserBadgeName() {
+      const name = getPlayerName() || 'Guest';
+      document.getElementById('userName').textContent = name;
+      // Also keep localStorage.playerName in sync if needed
+      if (localStorage.getItem('playerName') !== name) localStorage.setItem('playerName', name);
+    }
+
+    function updateUserBadgeTime() {
+      const stored = getTotalStoredSeconds();
+      const elapsedThisSession = Math.floor((Date.now() - sessionStart) / 1000);
+      const total = stored + elapsedThisSession;
+      document.getElementById('userTime').textContent = formatDuration(total);
+    }
+
+    function startUserTimer() {
+      // clear any existing interval
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+      sessionStart = Date.now();
+      updateUserBadgeTime();
+      sessionTimerInterval = setInterval(updateUserBadgeTime, 1000);
+    }
+
+    // when unload (reload/close), add session time to stored total
+    function persistSessionTimeOnUnload() {
+      try {
+        const stored = getTotalStoredSeconds();
+        const sessionSec = Math.floor((Date.now() - sessionStart) / 1000);
+        const newTotal = stored + sessionSec;
+        saveTotalStoredSeconds(newTotal);
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // react to storage changes from other tabs
+    window.addEventListener('storage', (ev) => {
+      if (ev.key === 'playerName') updateUserBadgeName();
+      if (ev.key === 'timeSpentSeconds') updateUserBadgeTime();
+    });
+
+    // initialize user badge
+    function initUserBadge() {
+      ensurePlayerName();
+      startUserTimer();
+      // persist on unload
+      window.addEventListener('beforeunload', persistSessionTimeOnUnload);
+      window.addEventListener('pagehide', persistSessionTimeOnUnload); // mobile/visibility
+    }
+
+    // ---------- rest of site logic ----------
 
     updateCoinDisplay(); updateShopButtons();
 
@@ -327,7 +446,7 @@
       alert('Admin session ended.');
     }
 
-    /* ---------- Admin spreadsheet code (same as before) ---------- */
+    /* ---------- Admin spreadsheet code (improved rendering) ---------- */
 
     function adminRenderTable(){
       const tbody = document.querySelector('#adminTable tbody');
@@ -340,16 +459,19 @@
       board.forEach((row, idx) => {
         const tr = document.createElement('tr');
 
+        // index cell
         const tdIndex = document.createElement('td');
         tdIndex.style.width = '40px';
         tdIndex.textContent = idx + 1;
 
+        // name cell with input
         const tdName = document.createElement('td');
         const inputName = document.createElement('input');
         inputName.type = 'text';
         inputName.value = row.name || '';
         tdName.appendChild(inputName);
 
+        // coins cell with input
         const tdCoins = document.createElement('td');
         const inputCoins = document.createElement('input');
         inputCoins.type = 'number';
@@ -357,6 +479,7 @@
         inputCoins.value = Number(row.coins) || 0;
         tdCoins.appendChild(inputCoins);
 
+        // actions
         const tdActions = document.createElement('td');
         tdActions.style.width = '110px';
         const delBtn = document.createElement('button');
@@ -512,7 +635,8 @@
     function shootingStarLoop(){ spawnShootingStar(); setTimeout(shootingStarLoop, Math.random()*5200+800); }
     setTimeout(shootingStarLoop, 1200);
 
-    // initial leaderboard DOM
+    // initial setup
+    initUserBadge();
     updateLeaderboard();
 
     // expose a few helpers for debugging if needed
