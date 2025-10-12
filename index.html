@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Bubba's Gramama — Admin + Editable Badge + Reset Time</title>
+  <title>Bubba's Gramama — Admin + Editable Badge + Reset Time + Safe Back Button</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -72,7 +72,7 @@
     .game-block{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 16px;margin-bottom:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005));border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(0,0,0,0.45)}
     .game-block h2{margin:0;font-size:1.05rem;color:var(--muted)}
     .game-block button.play-btn{padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(180deg,var(--accent),#00cfcf);cursor:pointer}
-    #backButton{position:fixed;top:20px;left:20px;padding:10px 18px;border-radius:8px;border:none;background:rgba(85,85,85,0.9);color:#fff;display:none;z-index:12}
+    #backButton{position:fixed;left:20px;padding:10px 18px;border-radius:8px;border:none;background:rgba(85,85,85,0.9);color:#fff;display:none;z-index:30}
     iframe{width:1200px;max-width:100%;height:600px;border-radius:10px;border:2px solid rgba(255,255,255,0.06);box-shadow:0 10px 50px rgba(0,0,0,0.7);display:none;margin-top:20px;z-index:2}
 
     /* stars */
@@ -324,11 +324,15 @@
 
     function updateUserBadgeName() {
       const name = getPlayerName() || 'Guest';
-      document.getElementById('userName').textContent = name;
+      const elem = document.getElementById('userName');
+      // If element exists and is input or div, set its text/value appropriately
+      if (elem) elem.textContent = name;
       // reflect in localStorage if not set (should be kept in sync)
       if (localStorage.getItem('playerName') !== name) localStorage.setItem('playerName', name);
       // update leaderboard UI when name changes
       updateLeaderboard();
+      // reposition back button in case badge size changed
+      positionBackButton();
     }
 
     function updateUserBadgeTime() {
@@ -362,15 +366,17 @@
 
     // make the badge name clickable/editable
     function attachBadgeEditHandlers() {
-      const nameEl = document.getElementById('userName');
-      nameEl.addEventListener('click', () => {
+      const existing = document.getElementById('userName');
+      if (!existing) return;
+      existing.onclick = null; // avoid duplicate handlers
+      existing.addEventListener('click', () => {
         // transform into input
         const oldName = getPlayerName() || 'Guest';
         const input = document.createElement('input');
         input.className = 'edit-name';
         input.value = oldName;
         input.title = 'Press Enter to save, Escape to cancel';
-        nameEl.replaceWith(input);
+        existing.replaceWith(input);
         input.focus();
         // select text
         input.setSelectionRange(0, input.value.length);
@@ -416,7 +422,10 @@
             }
           } else {
             // cancelled -> nothing else
+            updateUserBadgeName();
           }
+          // reposition back button after edit
+          positionBackButton();
         }
 
         input.addEventListener('keydown', (e) => {
@@ -427,13 +436,37 @@
       });
     }
 
+    // Keep Back button below the profile badge so they don't overlap
+    function positionBackButton() {
+      const badge = document.getElementById('userBadge');
+      const back = document.getElementById('backButton');
+      if (!badge || !back) return;
+
+      // get bounding rect relative to viewport
+      const rect = badge.getBoundingClientRect();
+
+      // desired gap (px) between badge bottom and back button top
+      const GAP = 8;
+
+      // compute new top: badge bottom + gap
+      const finalTop = Math.max(8, Math.round(rect.bottom + GAP));
+
+      back.style.top = finalTop + 'px';
+      // ensure left is kept at 20 (consistent with CSS)
+      back.style.left = '20px';
+    }
+
     // initialize user badge
     function initUserBadge() {
       ensurePlayerName();
       startUserTimer();
       attachBadgeEditHandlers();
+      // initial position update for back button
+      positionBackButton();
       window.addEventListener('beforeunload', persistSessionTimeOnUnload);
       window.addEventListener('pagehide', persistSessionTimeOnUnload);
+      // update position on resize (badge may reflow)
+      window.addEventListener('resize', positionBackButton);
     }
 
     // ---------- rest of site logic ----------
@@ -447,8 +480,36 @@
     function buyGame(gid,cost){ if (ownedGames[gid]) { alert("You already own this game."); return; } if (coins >= cost) { coins -= cost; ownedGames[gid] = true; saveData(); updateCoinDisplay(); updateShopButtons(); alert(`You bought ${gid} 🎮!`); } else alert("Not enough coins!"); }
 
     /* iframe */
-    function launchGame(id){ const shopProtected = ['drivemad','hideandsmash']; if (shopProtected.includes(id) && !ownedGames[id]) { alert("You need to buy this game first 🛒"); return; } const src = gameURLs[id]; if (!src) { console.warn('Missing url for', id); return; } const iframe = document.getElementById('gameFrame'); iframe.src = src; iframe.style.display = 'block'; document.getElementById('backButton').style.display = 'inline-block'; window.scrollTo({ top: iframe.offsetTop - 20, behavior: 'smooth' }); }
-    function goBack(){ const iframe = document.getElementById('gameFrame'); iframe.style.display = 'none'; iframe.src = ''; document.getElementById('backButton').style.display = 'none'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function launchGame(id){
+      const shopProtected = ['drivemad','hideandsmash'];
+      if (shopProtected.includes(id) && !ownedGames[id]) {
+        alert("You need to buy this game first 🛒");
+        return;
+      }
+      const src = gameURLs[id];
+      if (!src) {
+        console.warn('Missing url for', id);
+        return;
+      }
+      const iframe = document.getElementById('gameFrame');
+      iframe.src = src;
+      iframe.style.display = 'block';
+
+      // show and position back button under badge
+      const backBtn = document.getElementById('backButton');
+      backBtn.style.display = 'inline-block';
+      positionBackButton();
+
+      window.scrollTo({ top: iframe.offsetTop - 20, behavior: 'smooth' });
+    }
+    function goBack(){
+      const iframe = document.getElementById('gameFrame');
+      iframe.style.display = 'none';
+      iframe.src = '';
+      const backBtn = document.getElementById('backButton');
+      backBtn.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     /* daily reward */
     function claimDailyReward(){ const today = new Date().toDateString(); const last = localStorage.getItem('lastDailyClaim'); if (last === today) { alert("You already claimed today's reward! Come back tomorrow."); return; } coins += 250; saveData(); updateCoinDisplay(); localStorage.setItem('lastDailyClaim', today); alert("🎁 You received 250🪙 for your daily visit!"); }
@@ -750,11 +811,9 @@
       if (tdTimeCell) tdTimeCell.textContent = formatDuration(0);
       // if current user is the one reset, update badge display
       if ((getPlayerName() || 'Guest') === playerName) {
-        // reset session start so badge shows 00:00:00 for now
         sessionStart = Date.now();
         updateUserBadgeTime();
       }
-      // ensure admin table reflects mapping
       adminRenderTable();
       alert(`Cumulative time for "${playerName}" has been reset.`);
     }
@@ -763,7 +822,6 @@
     function adminResetAllTimes() {
       if (!confirm('Reset cumulative time for ALL players to 0? This cannot be undone.')) return;
       saveTimeMapping({});
-      // update badge and admin table
       sessionStart = Date.now();
       updateUserBadgeTime();
       adminRenderTable();
