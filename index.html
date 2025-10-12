@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Bubba's Gramama — Admin-Email Lock</title>
+  <title>Bubba's Gramama — Admin Email + Password Lock</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -58,12 +58,12 @@
     @keyframes twinkle{0%,100%{opacity:.9}50%{opacity:.3}} @keyframes twinkle2{0%,100%{opacity:.6}50%{opacity:.2}}
     .nebula{background:radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);opacity:.9;mix-blend-mode:overlay}
 
-    /* shooting star base class (ensures pointer-events none and sane stacking) */
+    /* shooting star base class */
     .shooting-star{pointer-events:none;z-index:0;border-radius:2px;position:absolute;display:block}
 
     /* admin login modal */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:20}
-    .modal{background:linear-gradient(180deg,rgba(10,12,30,0.96),rgba(14,10,30,0.95));padding:18px;border-radius:12px;border:1px solid rgba(0,255,255,0.06);width:320px;max-width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+    .modal{background:linear-gradient(180deg,rgba(10,12,30,0.96),rgba(14,10,30,0.95));padding:18px;border-radius:12px;border:1px solid rgba(0,255,255,0.06);width:360px;max-width:96%;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
     .modal h4{margin:0 0 8px;color:var(--accent);font-family:'Orbitron'}
     .modal input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:var(--panel);color:var(--accent);margin-bottom:8px}
     .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end}
@@ -156,16 +156,18 @@
     <iframe id="gameFrame" src="" allowfullscreen></iframe>
   </div>
 
+  <!-- admin login modal -->
   <div class="modal-backdrop" id="adminModalBackdrop" role="dialog" aria-modal="true" style="display:none">
     <div class="modal" role="document">
       <h4>Admin Login</h4>
-      <div id="adminLoginMessage" style="color:var(--muted);margin-bottom:8px">Enter admin email to open the Admin panel.</div>
+      <div id="adminLoginMessage" style="color:var(--muted);margin-bottom:8px">Enter admin email and password to open the Admin panel.</div>
       <input id="adminEmailInput" type="email" placeholder="Admin email" aria-label="Admin email" />
+      <input id="adminPasswordInput" type="password" placeholder="Password" aria-label="Admin password" />
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div id="adminAttemptsInfo" style="color:var(--muted);font-size:13px"></div>
         <div class="modal-actions">
           <button class="small-btn" onclick="closeAdminModal()">Cancel</button>
-          <button class="small-btn" onclick="checkAdminEmail()">Log in</button>
+          <button class="small-btn" onclick="checkAdminCredentials()">Log in</button>
         </div>
       </div>
     </div>
@@ -173,11 +175,17 @@
 
   <script>
     /* ---------------------------
-       Config (edit only here)
-    --------------------------- */
-    const ADMIN_EMAIL = 'bywhitley@s.sfusd.edu'.toLowerCase(); // allowed admin email
+       Config (edit here)
+       --------------------------- */
+    // Allowed admin email (lowercase compare)
+    const ADMIN_EMAIL = 'bywhitley@s.sfusd.edu'.toLowerCase();
+
+    // Client-side admin password (change this string before sharing)
+    // NOTE: this is client-side only. Use a server-based login for true security.
+    const ADMIN_PASSWORD = 'BubbaAdmin2025!';
+
     const ADMIN_MAX_ATTEMPTS = 5;
-    const ADMIN_LOCK_MS = 60 * 1000; // lock 60s after too many attempts
+    const ADMIN_LOCK_MS = 60 * 1000; // 60 seconds lock after too many failed attempts
 
     /* ---------- existing site state & helpers ---------- */
     const gameURLs = {
@@ -207,6 +215,7 @@
 
     updateCoinDisplay(); updateShopButtons();
 
+    // Give 250 coins after 60 seconds for visit
     setTimeout(()=>{ coins += 250; saveData(); updateCoinDisplay(); if (document.visibilityState !== 'hidden') alert("You earned 250 🪙 for visiting!"); }, 60000);
 
     /* shop / buy */
@@ -229,7 +238,7 @@
     function checkCode(){ const input = document.getElementById('codeInput').value.trim(); const btn = document.getElementById('unlockButton'); if (input === '2354') { btn.style.display = 'inline-block'; btn.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' }); clearTimeout(window._unlockHideTimeout); window._unlockHideTimeout = setTimeout(()=>{ btn.style.display = 'none'; }, 10000); } else { btn.style.display = 'none'; const el = document.getElementById('codeInput'); el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 }); } }
     document.getElementById('codeInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); checkCode(); } });
 
-    /* ---------- ADMIN: email-restricted access (client-side) ---------- */
+    /* ---------- ADMIN: email+password client-side gate ---------- */
 
     function getAdminState(){
       const raw = localStorage.getItem('admin_attempts') || '{}';
@@ -240,7 +249,7 @@
 
     function showAdminModal(message){
       const backdrop = document.getElementById('adminModalBackdrop');
-      document.getElementById('adminLoginMessage').textContent = message || 'Enter admin email to open the Admin panel.';
+      document.getElementById('adminLoginMessage').textContent = message || 'Enter admin email and password to open the Admin panel.';
       const info = document.getElementById('adminAttemptsInfo');
       const st = getAdminState();
       if (st.lockedUntil && Date.now() < st.lockedUntil) {
@@ -251,6 +260,7 @@
       }
       backdrop.style.display = 'flex';
       document.getElementById('adminEmailInput').value = '';
+      document.getElementById('adminPasswordInput').value = '';
       document.getElementById('adminEmailInput').focus();
     }
     function closeAdminModal(){ document.getElementById('adminModalBackdrop').style.display = 'none'; }
@@ -276,16 +286,18 @@
       }
     }
 
-    function checkAdminEmail(){
+    // validate both email and password
+    function checkAdminCredentials(){
       const st = getAdminState();
       if (st.lockedUntil && Date.now() < st.lockedUntil) {
         showAdminModal('Locked due to many failed attempts. Try again later.');
         return;
       }
-      const value = (document.getElementById('adminEmailInput').value || '').trim().toLowerCase();
-      if (!value) { showAdminModal('Please enter an email.'); return; }
+      const emailVal = (document.getElementById('adminEmailInput').value || '').trim().toLowerCase();
+      const passVal = (document.getElementById('adminPasswordInput').value || '').trim();
+      if (!emailVal || !passVal) { showAdminModal('Please enter both email and password.'); return; }
 
-      if (value === ADMIN_EMAIL) {
+      if (emailVal === ADMIN_EMAIL && passVal === ADMIN_PASSWORD) {
         sessionStorage.setItem('isAdmin','true');
         setAdminState({ attempts: 0, lockedUntil: 0 });
         closeAdminModal();
@@ -295,12 +307,13 @@
         adminRenderTable();
         alert('Admin access granted for this session.');
       } else {
+        // increment attempts
         st.attempts = (st.attempts || 0) + 1;
         if (st.attempts >= ADMIN_MAX_ATTEMPTS) {
           st.lockedUntil = Date.now() + ADMIN_LOCK_MS;
           showAdminModal('Too many failed attempts — admin locked temporarily.');
         } else {
-          showAdminModal('Email not recognized. Try again.');
+          showAdminModal('Email or password not recognized. Try again.');
         }
         setAdminState(st);
       }
@@ -314,7 +327,7 @@
       alert('Admin session ended.');
     }
 
-    /* ---------- Admin spreadsheet code (improved rendering) ---------- */
+    /* ---------- Admin spreadsheet code (same as before) ---------- */
 
     function adminRenderTable(){
       const tbody = document.querySelector('#adminTable tbody');
@@ -327,19 +340,16 @@
       board.forEach((row, idx) => {
         const tr = document.createElement('tr');
 
-        // index cell
         const tdIndex = document.createElement('td');
         tdIndex.style.width = '40px';
         tdIndex.textContent = idx + 1;
 
-        // name cell with input
         const tdName = document.createElement('td');
         const inputName = document.createElement('input');
         inputName.type = 'text';
         inputName.value = row.name || '';
         tdName.appendChild(inputName);
 
-        // coins cell with input
         const tdCoins = document.createElement('td');
         const inputCoins = document.createElement('input');
         inputCoins.type = 'number';
@@ -347,7 +357,6 @@
         inputCoins.value = Number(row.coins) || 0;
         tdCoins.appendChild(inputCoins);
 
-        // actions
         const tdActions = document.createElement('td');
         tdActions.style.width = '110px';
         const delBtn = document.createElement('button');
@@ -506,7 +515,9 @@
     // initial leaderboard DOM
     updateLeaderboard();
 
+    // expose a few helpers for debugging if needed
     window._BG = { adminRenderTable, adminSave, adminExportCSV, adminImportCSV, adminLogout };
+
   </script>
 </body>
 </html>
