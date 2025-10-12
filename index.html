@@ -1,184 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Bubba's Gramama</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="shortcut icon" type="image/x-icon" href="bubbasgramamaa.png" />
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-dark: #05021a;
-  --bg-mid: #0b0c2a;
-  --accent: #00ffff;
-  --panel: #1a1a3d;
-  --btn: #00ffff;
-  --muted: #cfc6ff;
-}
+  <meta charset="utf-8" />
+  <title>Bubba's Gramama (With Admin Spreadsheet)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-mid:#0b0c2a; --accent:#00ffff; --panel:#1a1a3d; --muted:#cfc6ff;
+    }
+    html,body{height:100%;margin:0;padding:0;background:
+      radial-gradient(ellipse at center,var(--bg-mid) 0%,#000 100%),
+      linear-gradient(180deg, rgba(255,255,255,0.02) 0, transparent 100%);
+      color:#fff;font-family:'Segoe UI',system-ui,-apple-system,"Orbitron",sans-serif;overflow-x:hidden;}
+    .container{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding:40px 20px;max-width:1200px;margin:0 auto}
+    h1.site-title{margin:10px 0 6px;font-size:2rem;color:var(--accent);text-shadow:0 0 12px rgba(0,255,255,0.14),0 6px 30px rgba(0,0,0,0.6);letter-spacing:1px}
 
-body {
-  margin: 0; padding: 0;
-  background: radial-gradient(ellipse at center, var(--bg-mid) 0%, #000000 100%),
-              linear-gradient(180deg, rgba(255,255,255,0.02) 0, transparent 100%);
-  color: #fff;
-  font-family: 'Segoe UI', system-ui, -apple-system, "Segoe UI Emoji", "Orbitron", sans-serif;
-  min-height: 100vh; overflow-x: hidden;
-}
+    /* UI top */
+    .coin-container{position:fixed;top:20px;right:20px;z-index:12;display:flex;align-items:center;gap:10px}
+    #coinDisplay{font-size:18px;background:rgba(0,255,255,0.08);padding:6px 12px;border-radius:8px;color:var(--accent);font-family:'Orbitron';box-shadow:0 0 10px rgba(0,255,255,0.06)}
+    button.top-btn{padding:6px 12px;border-radius:8px;border:none;background:rgba(0,255,255,0.18);cursor:pointer;font-family:'Orbitron';transition:.2s}
 
-.stars, .stars2, .nebula { position: fixed; top: 0; left:0; width:200%; height:200%; pointer-events:none; z-index:0; transform:translate(-25%,-25%); opacity:0.9; mix-blend-mode:screen; }
+    /* panels */
+    .panel{position:fixed;background:rgba(5,5,20,0.95);border:1px solid rgba(0,255,255,0.18);border-radius:12px;padding:12px;display:none;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,255,255,0.06);z-index:11;width:320px;animation:dropdown .28s ease}
+    .shop-panel{top:70px;right:20px}
+    .leaderboard-panel{top:70px;right:360px;width:260px}
+    .admin-panel{top:70px; right:20px; width:520px; max-height:70vh; overflow:auto}
 
-.stars::after {
-  content:""; position:absolute; width:2px; height:2px; background:white;
-  box-shadow:50px 100px white,200px 300px white,400px 150px white,
-             600px 250px white,800px 100px white,1000px 200px white,
-             1200px 50px white,1400px 350px white,1600px 220px white,
-             1800px 120px white;
-  animation:twinkle 2.5s infinite ease-in-out;
-}
+    @keyframes dropdown{from{transform:translateY(-12px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-.stars2::after {
-  content:""; position:absolute; width:1px; height:1px; background:#aaf0ff;
-  box-shadow:120px 80px #aaf0ff,320px 240px #aaf0ff,
-             720px 150px #aaf0ff,920px 450px #aaf0ff,
-             1320px 100px #aaf0ff,1720px 300px #aaf0ff;
-  opacity:0.6; animation:twinkle 3.5s infinite ease-in-out;
-}
+    .shop-item{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-family:'Orbitron'}
+    .buy-button{background:linear-gradient(90deg,#00ffff,#008080);border:2px solid #00ffff;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;box-shadow:0 0 6px #00ffff;transition:all .18s;font-family:'Orbitron'}
+    .buy-button.owned{background:linear-gradient(90deg,#ff4444,#cc0000);border-color:#ff4444;color:#fff;cursor:not-allowed}
 
-@keyframes twinkle { 0%,100%{opacity:0.9; transform:translateY(0);} 50%{opacity:0.3; transform:translateY(2px);} }
+    /* admin table */
+    .admin-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    table.admin-table{width:100%;border-collapse:collapse;font-family:'Orbitron';color:#fff}
+    table.admin-table th, table.admin-table td{border:1px solid rgba(255,255,255,0.06);padding:6px;font-size:14px;text-align:left;background:rgba(255,255,255,0.01)}
+    table.admin-table input[type="text"], table.admin-table input[type="number"]{width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:var(--panel);color:var(--accent);font-family:'Orbitron'}
 
-.nebula {
-  background:radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),
-             radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);
-  z-index:0; mix-blend-mode:overlay;
-}
+    .admin-actions{display:flex;gap:8px}
+    .small-btn{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(180deg,#00baba,#00ffff);color:#001;font-weight:700}
 
-.coin-container { position:fixed; top:20px; right:20px; z-index:4; display:flex; align-items:center; gap:10px; }
-#coinDisplay { font-size:18px; background:rgba(0,255,255,0.1); padding:6px 12px; border-radius:8px; color:var(--accent); font-family:'Orbitron',sans-serif; box-shadow:0 0 10px rgba(0,255,255,0.1);}
-#shopToggle, #leaderboardToggle { font-size:16px; background:rgba(0,255,255,0.2); color:#000; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-family:'Orbitron',sans-serif; box-shadow:0 6px 20px rgba(0,255,255,0.12); }
+    /* rest of site */
+    .game-block{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 16px;margin-bottom:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005));border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+    .game-block h2{margin:0;font-size:1.05rem;color:var(--muted)}
+    .game-block button.play-btn{padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(180deg,var(--accent),#00cfcf);cursor:pointer}
 
-.slide-panel {
-  position: fixed; top:60px; right:-260px; width:240px; background:rgba(5,5,20,0.95);
-  border:1px solid rgba(0,255,255,0.2); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:12px;
-  box-shadow:0 10px 40px rgba(0,255,255,0.08); z-index:5; transition:right 0.35s ease;
-}
+    #backButton{position:fixed;top:20px;left:20px;padding:10px 18px;border-radius:8px;border:none;background:rgba(85,85,85,0.9);color:#fff;display:none;z-index:11}
 
-.slide-panel.open { right:20px; }
-.slide-panel h3 { color:var(--accent); text-align:center; margin:0; font-family:'Orbitron',sans-serif; }
-.slide-panel input { width:100%; padding:6px; border-radius:6px; border:1px solid #00ffff; font-family:'Orbitron',sans-serif; text-align:center; }
+    iframe{width:1200px;max-width:100%;height:600px;border-radius:10px;border:2px solid rgba(255,255,255,0.06);box-shadow:0 10px 50px rgba(0,0,0,0.7);display:none;margin-top:20px;z-index:2}
 
-.buy-button {
-  background: linear-gradient(90deg,#00ffff,#008080); border:2px solid #00ffff; border-radius:6px;
-  padding:8px 16px; color:#00ffff; font-family:'Orbitron',sans-serif; font-weight:700; text-transform:uppercase;
-  cursor:pointer; box-shadow:0 0 6px #00ffff,0 0 15px #00ffff; transition: all 0.25s ease-in-out;
-}
-.buy-button:hover { background:linear-gradient(90deg,#00ffff,#00baba); color:#fff; box-shadow:0 0 10px #00ffff,0 0 25px #00ffff,0 0 40px #00ffff; transform:scale(1.08); }
+    /* stars (kept minimal for brevity) */
+    .stars,.stars2,.nebula{position:fixed;top:0;left:0;width:200%;height:200%;pointer-events:none;z-index:0;transform:translate(-25%,-25%);mix-blend-mode:screen}
+    .stars::after{content:"";position:absolute;width:2px;height:2px;background:white;box-shadow:50px 100px white,200px 300px white,400px 150px white,600px 250px white,800px 100px white;animation:twinkle 2.5s infinite ease-in-out}
+    .stars2::after{content:"";position:absolute;width:1px;height:1px;background:#aaf0ff;box-shadow:120px 80px #aaf0ff,320px 240px #aaf0ff;opacity:0.6;animation:twinkle2 3.5s infinite ease-in-out}
+    @keyframes twinkle{0%,100%{opacity:.9}50%{opacity:.3}} @keyframes twinkle2{0%,100%{opacity:.6}50%{opacity:.2}}
+    .nebula{background:radial-gradient(600px 300px at 10% 10%, rgba(0,200,255,0.06), transparent 10%),radial-gradient(500px 260px at 80% 70%, rgba(180,0,255,0.04), transparent 8%);opacity:.9;mix-blend-mode:overlay}
 
-.container { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; padding:40px 20px; max-width:1200px; margin:0 auto; }
-h1.site-title { margin:10px 0 6px; font-size:2rem; color:var(--accent); text-shadow:0 0 12px rgba(0,255,255,0.14),0 6px 30px rgba(0,0,0,0.6); letter-spacing:1px; }
-.gif { margin:16px 0 28px; max-width:90%; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 30px rgba(0,255,255,0.06) inset; border:1px solid rgba(255,255,255,0.04); }
-
-.game-block { width:100%; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:12px 16px; margin-bottom:14px;
-             background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005)); border-radius:12px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 18px rgba(0,0,0,0.5); }
-.game-block h2 { margin:0; font-size:1.05rem; color:var(--muted); }
-.game-block button { padding:12px 18px; font-size:16px; background:linear-gradient(180deg,var(--btn),#00cfcf); color:#001; border:none; border-radius:10px; cursor:pointer; box-shadow:0 6px 22px rgba(0,255,255,0.12); transition: transform .15s ease, box-shadow .15s ease; font-family:'Orbitron',sans-serif; }
-.game-block button:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 10px 30px rgba(0,255,255,0.16); }
-
-#backButton { position:fixed; top:20px; left:20px; padding:10px 18px; font-size:16px; background-color:rgba(85,85,85,0.9); color:white; border:none; border-radius:8px; cursor:pointer; display:none; z-index:3; box-shadow:0 6px 20px rgba(0,0,0,0.6); }
-iframe { width:1200px; max-width:100%; height:600px; border:2px solid rgba(255,255,255,0.06); border-radius:10px; box-shadow:0 10px 50px rgba(0,0,0,0.7); display:none; margin-top:24px; z-index:2; background:#000; }
-
-@media (max-width:820px){ .game-block{flex-direction:column; align-items:stretch; text-align:left;} iframe{height:480px;} }
-</style>
+    /* admin tips line */
+    .admin-note{font-size:13px;color:var(--muted);font-family:'Orbitron'}
+    @media(max-width:820px){ .admin-panel{right:10px;left:10px;width:auto} iframe{height:80vh} }
+  </style>
 </head>
 <body>
-<div class="stars"></div>
-<div class="stars2"></div>
-<div class="nebula"></div>
+  <div class="stars"></div><div class="stars2"></div><div class="nebula"></div>
 
-<div class="coin-container">
-  <span id="coinDisplay">🪙 0</span>
-  <button id="shopToggle" onclick="toggleShop()">🛒 Shop</button>
-  <button id="leaderboardToggle" onclick="toggleLeaderboard()">📊 Leaderboard</button>
-</div>
+  <!-- top UI -->
+  <div class="coin-container">
+    <button id="dailyRewardBtn" class="top-btn" onclick="claimDailyReward()">🎁 Daily Reward</button>
+    <button id="leaderboardToggle" class="top-btn" onclick="toggleLeaderboard()">🏆 Leaderboard</button>
+    <span id="coinDisplay">🪙 0</span>
+    <button id="shopToggle" class="top-btn" onclick="toggleShop()">🛒 Shop</button>
+    <!-- Admin toggle -->
+    <button id="adminToggle" class="top-btn" onclick="toggleAdmin()">📋 Admin</button>
+  </div>
 
-<div id="shopPanel" class="slide-panel">
-<h3>Game Shop</h3>
-<div class="shop-item">
-<span>Drive Mad</span>
-<button class="buy-button" onclick="buyGame('drivemad',300)">Buy - 300🪙</button>
-</div>
-<div class="shop-item">
-<span>Hide and Smash</span>
-<button class="buy-button" onclick="buyGame('hideandsmash',200)">Buy - 200🪙</button>
-</div>
-</div>
+  <!-- Shop panel -->
+  <div class="panel shop-panel" id="shopPanel" aria-hidden="true">
+    <h3>Game Shop</h3>
+    <div class="shop-item">
+      <span>Drive Mad</span>
+      <button class="buy-button" data-game="drivemad" data-cost="300" onclick="buyGame('drivemad',300)">Buy - 300🪙</button>
+    </div>
+    <div class="shop-item">
+      <span>Hide and Smash</span>
+      <button class="buy-button" data-game="hideandsmash" data-cost="200" onclick="buyGame('hideandsmash',200)">Buy - 200🪙</button>
+    </div>
+  </div>
 
-<div id="leaderboardPanel" class="slide-panel">
-<h3>Leaderboard</h3>
-<input id="usernameInput" type="text" maxlength="15" placeholder="Your Name" onblur="updateUsername()">
-<div id="leaderboardContent"></div>
-</div>
+  <!-- Leaderboard -->
+  <div class="panel leaderboard-panel" id="leaderboardPanel" aria-hidden="true">
+    <h3>🏆 Top Coin Holders</h3>
+    <div id="leaderboardList" style="max-height:260px;overflow:auto"></div>
+    <button class="close-btn" onclick="closeLeaderboard()">Close</button>
+  </div>
 
-<button id="backButton" onclick="goBack()">⬅ Back</button>
+  <!-- Admin Spreadsheet panel -->
+  <div class="panel admin-panel" id="adminPanel" aria-hidden="true">
+    <h3>Admin Spreadsheet — Edit Players' Coins</h3>
+    <div class="admin-controls">
+      <div class="admin-actions">
+        <button class="small-btn" onclick="adminAddRow()">+ Add Row</button>
+        <button class="small-btn" onclick="adminSave()">Save Changes</button>
+        <button class="small-btn" onclick="adminExportCSV()">Export CSV</button>
+        <label style="display:inline-block;">
+          <input id="adminImportFile" type="file" accept=".csv" style="display:none" onchange="adminImportCSV(this)" />
+          <button class="small-btn" onclick="document.getElementById('adminImportFile').click()">Import CSV</button>
+        </label>
+      </div>
+    </div>
+    <div style="overflow:auto;max-height:48vh">
+      <table class="admin-table" id="adminTable">
+        <thead>
+          <tr><th>#</th><th>Player Name</th><th>Coins</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="admin-note">Tip: CSV format = name,coins  — import will replace or add rows. Press Save to persist changes.</div>
+  </div>
 
-<div class="container">
-<h1 class="site-title">WELCOME to Bubba's Gramama</h1>
-<img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif">
+  <button id="backButton" onclick="goBack()">⬅ Back</button>
 
-<!-- Game blocks -->
-<div class="game-block"><h2>Hide and Smash</h2><button onclick="launchGame('hideandsmash')">Play Hide and Smash</button></div>
-<div class="game-block"><h2>Pixle Gun 3d</h2><button onclick="launchGame('pixelgun')">Play Pixle Gun 3d</button></div>
-<div class="game-block"><h2>Idle Breakout</h2><button onclick="launchGame('idle-breakout')">Play Idle Breakout</button></div>
+  <div class="container">
+    <h1 class="site-title">WELCOME to Bubba's Gramama</h1>
+    <img class="gif" src="https://media1.tenor.com/m/0IixRqy4QoEAAAAC/a-fart-fart.gif" alt="Funny gif" style="max-width:90%;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.6)">
 
-<iframe id="gameFrame" src="" allowfullscreen></iframe>
-</div>
+    <!-- access -->
+    <div class="access-panel" aria-label="Galactic access panel" style="width:100%;max-width:760px;margin:18px 0;padding:16px;border-radius:12px;background:linear-gradient(180deg,rgba(10,12,30,0.6),rgba(14,10,30,0.35));border:1px solid rgba(0,255,255,0.06);display:flex;flex-direction:column;align-items:center;gap:12px">
+      <h3>Enter Access Code</h3>
+      <div class="code-row" style="display:flex;gap:12px;width:100%;justify-content:center;align-items:center">
+        <input id="codeInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="• • • •" aria-label="Access code" style="flex:1;padding:12px 14px;border-radius:8px;border:none;background:var(--panel);color:var(--accent);font-family:'Orbitron';text-align:center"/>
+        <button class="submit-btn" onclick="checkCode()" style="padding:10px 14px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--accent),#00cfcf);cursor:pointer;font-family:'Orbitron'">Submit</button>
+      </div>
+      <button id="unlockButton" style="display:none;padding:10px 16px;border-radius:8px;border:none;background:linear-gradient(180deg,#ffd48f,#ff9e3b);cursor:pointer">🚀 Launch Sequence Activated</button>
+    </div>
 
-<script>
-const bannedWords=["badword1","badword2","nasty"];
-let username=localStorage.getItem("username")||"Byr0n_TheKid";
-document.getElementById("usernameInput").value=username;
-let coins=parseInt(localStorage.getItem("coins")||"0");
-let ownedGames=JSON.parse(localStorage.getItem("ownedGames")||"{}");
+    <!-- games (kept compact) -->
+    <div class="game-block"><h2>Hide and Smash</h2><button class="play-btn" onclick="launchGame('hideandsmash')">Play Hide and Smash</button></div>
+    <div class="game-block"><h2>Pixle Gun 3d</h2><button class="play-btn" onclick="launchGame('pixelgun')">Play Pixle Gun 3d</button></div>
+    <div class="game-block"><h2>Idle Breakout</h2><button class="play-btn" onclick="launchGame('idle-breakout')">Play Idle Breakout</button></div>
+    <div class="game-block"><h2>Crossy Road</h2><button class="play-btn" onclick="launchGame('crossyroad')">Play Crossy Road</button></div>
+    <div class="game-block"><h2>Slope</h2><button class="play-btn" onclick="launchGame('slope')">Play Slope</button></div>
+    <div class="game-block"><h2>Bit Life</h2><button class="play-btn" onclick="launchGame('bitlife')">Play Bit Life</button></div>
+    <div class="game-block"><h2>Subway Surfers</h2><button class="play-btn" onclick="launchGame('subway-surfers')">Play Subway Surfers</button></div>
+    <div class="game-block"><h2>Stickman Golf</h2><button class="play-btn" onclick="launchGame('stickman-golf')">Play Stickman Golf</button></div>
+    <div class="game-block"><h2>Basketball Random</h2><button class="play-btn" onclick="launchGame('basketball-random')">Play Basketball Random</button></div>
+    <div class="game-block"><h2>Minecraft</h2><button class="play-btn" onclick="launchGame('minecraft')">Play Minecraft</button></div>
+    <div class="game-block"><h2>DRIFT HUNTERS</h2><button class="play-btn" onclick="launchGame('drifthunters')">Play Drift Hunters</button></div>
+    <div class="game-block"><h2>Drive Mad!</h2><button class="play-btn" onclick="launchGame('drivemad')">Play Drive Mad</button></div>
+    <div class="game-block"><h2>Opposite Day</h2><button class="play-btn" onclick="launchGame('oppositeday')">Don't play Opposite Day</button></div>
+    <div class="game-block"><h2>❄️ Snow Rider 3D</h2><button class="play-btn" onclick="launchGame('snowrider')">Play Snow Rider 3D</button></div>
 
-let leaderboard=[
-  {name:"PlayerOne",coins:1250},
-  {name:"PlayerTwo",coins:1120},
-  {name:username,coins:coins}
-];
+    <iframe id="gameFrame" src="" allowfullscreen></iframe>
+  </div>
 
-const gameURLs={
-'hideandsmash':"https://gibbat2.github.io/Games/games/hideandsmash/",
-'pixelgun':"https://gibbat2.github.io/Games/games/pixelgun/",
-'idle-breakout':"https://gibbat2.github.io/Games/games/idle-breakout/"
-};
+  <script>
+    /* ---------- existing site state & helpers ---------- */
+    const gameURLs = {
+      'hideandsmash': "https://gibbat2.github.io/Games/games/hideandsmash/",
+      'pixelgun': "https://gibbat2.github.io/Games/games/pixelgun/",
+      'idle-breakout': "https://gibbat2.github.io/Games/games/idle-breakout/",
+      'crossyroad': "https://gibbat2.github.io/Games/games/crossyroad/",
+      'slope': "https://gibbat2.github.io/Games/games/slope/",
+      'bitlife': "https://gibbat2.github.io/Games/games/bitlife/",
+      'subway-surfers': "https://gibbat2.github.io/Games/games/subway-surfers/",
+      'stickman-golf': "https://gibbat2.github.io/Games/games/stickman-golf/",
+      'basketball-random': "https://gibbat2.github.io/Games/games/basketball-random/",
+      'minecraft': "https://daniezonmc.github.io/1.20/",
+      'drifthunters': "https://gibbat2.github.io/Games/games/drifthunters/",
+      'drivemad': "https://gibbat2.github.io/Games/games/drivemad/",
+      'oppositeday': "https://www.hoodamath.com/games/oppositeday.html",
+      'snowrider': "https://www.hoodamath.com/games/snowrider3d.html",
+      'secret': "https://helios-blue.vercel.app/?sca_esv=fe0ebb4ec3b321c8&ie=ISO-8859-1&q=hello"
+    };
 
-function updateLeaderboard(){
-  // Remove old entry if name changed
-  leaderboard = leaderboard.filter(p => p.name!==username);
-  // Add current username
-  leaderboard.push({name:username, coins:coins});
-  leaderboard.sort((a,b)=>b.coins-a.coins);
-  const container=document.getElementById("leaderboardContent");
-  container.innerHTML="";
-  leaderboard.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.textContent=`${i+1}. ${p.name} - 🪙 ${p.coins}`;
-    div.style.padding="4px 0";
-    container.appendChild(div);
-  });
-}
+    let coins = parseInt(localStorage.getItem('coins') || '0', 10);
+    let ownedGames = JSON.parse(localStorage.getItem('ownedGames') || '{}');
 
-function updateCoinDisplay(){document.getElementById('coinDisplay').textContent=`🪙 ${coins}`; updateLeaderboard();}
-function toggleShop(){document.getElementById('shopPanel').classList.toggle('open');}
-function toggleLeaderboard(){document.getElementById('leaderboardPanel').classList.toggle('open');}
+    function saveData(){
+      localStorage.setItem('coins', String(coins));
+      localStorage.setItem('ownedGames', JSON.stringify(ownedGames));
+    }
+    function updateCoinDisplay(){ document.getElementById('coinDisplay').textContent = `🪙 ${coins}`; }
+    function updateShopButtons(){
+      document.querySelectorAll('.buy-button').forEach(btn=>{
+        const gid = btn.dataset.game;
+        const cost = btn.dataset.cost || '';
+        if (gid && ownedGames[gid]) {
+          btn.classList.add('owned'); btn.textContent = 'Owned'; btn.disabled = true;
+        } else { btn.classList.remove('owned'); btn.disabled = false; btn.textContent = cost ? `Buy - ${cost}🪙` : 'Buy'; }
+      });
+    }
 
-function buyGame(id,cost){if(ownedGames[id]){alert("Already owned");return;} if(coins>=cost){coins-=cost;ownedGames[id]=true;saveData();updateCoinDisplay();alert(`You bought ${id}!`);}else alert("Not enough coins");}
-function saveData(){localStorage.setItem("coins",coins); localStorage.setItem("ownedGames",JSON.stringify(ownedGames)); localStorage.setItem("username",username);}
-function launchGame(id){if(['drivemad','hideandsmash'].includes(id)&&!ownedGames[id]){alert("Buy first!");return;} const src=gameURLs[id]; if(!src) return; const iframe=document.getElementById("gameFrame"); iframe.src=src; iframe.style.display='block'; document.getElementById("backButton").style.display='inline-block'; window.scrollTo({top:iframe.offsetTop-20,behavior:'smooth'});}
-function goBack(){const iframe=document.getElementById("gameFrame"); iframe.style.display='none'; iframe.src=''; document.getElementById("backButton").style.display='none'; window.scrollTo({top:0,behavior:'smooth'});}
-function updateUsername(){let input=document.getElementById("usernameInput").value.trim(); bannedWords.forEach(w=>{const regex=new RegExp(w,"gi"); input=input.replace(regex,"***");}); username=input||"Byr0n_TheKid"; saveData(); updateLeaderboard();}
+    updateCoinDisplay(); updateShopButtons();
 
-setTimeout(()=>{coins+=250; saveData(); updateCoinDisplay(); alert("You earned 250 🪙 for visiting!");},60000);
-updateCoinDisplay();
-</script>
+    // small visit reward after 60s
+    setTimeout(()=>{ coins += 250; saveData(); updateCoinDisplay(); if (document.visibilityState !== 'hidden') alert("You earned 250 🪙 for visiting!"); }, 60000);
+
+    /* ---------- shop / buy ---------- */
+    function toggleShop(){ const p=document.getElementById('shopPanel'); p.style.display = (p.style.display==='flex') ? 'none' : 'flex'; p.setAttribute('aria-hidden', p.style.display==='none'); }
+    function buyGame(gid,cost){
+      if (ownedGames[gid]) { alert("You already own this game."); return; }
+      if (coins >= cost) { coins -= cost; ownedGames[gid] = true; saveData(); updateCoinDisplay(); updateShopButtons(); alert(`You bought ${gid} 🎮!`); }
+      else alert("Not enough coins!");
+    }
+
+    /* ---------- game iframe ---------- */
+    function launchGame(id){
+      const shopProtected = ['drivemad','hideandsmash'];
+      if (shopProtected.includes(id) && !ownedGames[id]) { alert("You need to buy this game first 🛒"); return; }
+      const src = gameURLs[id];
+      if (!src) { console.warn('Missing url for', id); return; }
+      const iframe = document.getElementById('gameFrame'); iframe.src = src; iframe.style.display = 'block';
+      document.getElementById('backButton').style.display = 'inline-block';
+      window.scrollTo({ top: iframe.offsetTop - 20, behavior: 'smooth' });
+    }
+    function goBack(){ const iframe = document.getElementById('gameFrame'); iframe.style.display = 'none'; iframe.src = ''; document.getElementById('backButton').style.display = 'none'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    /* ---------- daily reward ---------- */
+    function claimDailyReward(){
+      const today = new Date().toDateString(); const last = localStorage.getItem('lastDailyClaim');
+      if (last === today) { alert("You already claimed today's reward! Come back tomorrow."); return; }
+      coins += 250; saveData(); updateCoinDisplay(); localStorage.setItem('lastDailyClaim', today); alert("🎁 You received 250🪙 for your daily visit!");
+    }
+
+    /* ---------- leaderboard ---------- */
+    function toggleLeaderboard(){
+      const p = document.getElementById('leaderboardPanel');
+      if (p.style.display === 'flex') { p.style.display = 'none'; p.setAttribute('aria-hidden','true'); }
+      else { updateLeaderboard(); p.style.display = 'flex'; p.setAttribute('aria-hidden','false'); }
+    }
+    function closeLeaderboard(){ document.getElementById('leaderboardPanel').style.display = 'none'; document.getElementById('leaderboardPanel').setAttribute('aria-hidden','true'); }
+
+    function updateLeaderboard(){
+      let board = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+      // if no leaderboard yet, create default entry for current user
+      if (!board.length) {
+        const name = localStorage.getItem('playerName') || 'Guest';
+        board = [{ name, coins }];
+      }
+      // ensure current player's coins reflect current coins variable
+      const currentName = localStorage.getItem('playerName') || 'Guest';
+      const existing = board.find(p => p.name === currentName);
+      if (existing) existing.coins = coins; else board.push({ name: currentName, coins });
+
+      // sort & save
+      board.sort((a,b) => b.coins - a.coins);
+      localStorage.setItem('leaderboard', JSON.stringify(board));
+
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = board.slice(0,10).map((p,i) => `<div>${i+1}. ${p.name} — ${p.coins}🪙</div>`).join('');
+    }
+
+    /* ---------- access code ---------- */
+    function checkCode(){
+      const input = document.getElementById('codeInput').value.trim();
+      const btn = document.getElementById('unlockButton');
+      if (input === '2354') {
+        btn.style.display = 'inline-block';
+        btn.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
+        clearTimeout(window._unlockHideTimeout);
+        window._unlockHideTimeout = setTimeout(()=>{ btn.style.display = 'none'; }, 10000);
+      } else {
+        btn.style.display = 'none';
+        const el = document.getElementById('codeInput');
+        el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 });
+      }
+    }
+    document.getElementById('codeInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); checkCode(); } });
+
+    /* ---------- ADMIN spreadsheet features ---------- */
+
+    // toggle admin panel
+    function toggleAdmin(){
+      const p = document.getElementById('adminPanel');
+      p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+      p.setAttribute('aria-hidden', p.style.display === 'none');
+      if (p.style.display === 'flex') adminRenderTable();
+    }
+
+    // render admin table from leaderboard localStorage
+    function adminRenderTable(){
+      const tbody = document.querySelector('#adminTable tbody');
+      tbody.innerHTML = '';
+      let board = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+
+      // If leaderboard is empty, seed with any saved playerName
+      if (!board.length) {
+        const name = localStorage.getItem('playerName') || 'Guest';
+        board = [{ name, coins }];
+      }
+
+      // ensure board contains unique names and numbers
+      board.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="width:40px">${idx+1}</td>
+          <td><input type="text" value="${escapeHtml(row.name)}" /></td>
+          <td><input type="number" min="0" value="${Number(row.coins) || 0}" /></td>
+          <td style="width:110px"><button class="small-btn" onclick="adminDeleteRow(this)">Delete</button></td>
+        `.trim();
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Add row in admin UI
+    function adminAddRow(){
+      const tbody = document.querySelector('#adminTable tbody');
+      const tr = document.createElement('tr');
+      const idx = tbody.children.length + 1;
+      tr.innerHTML = `
+        <td style="width:40px">${idx}</td>
+        <td><input type="text" value="New Player" /></td>
+        <td><input type="number" min="0" value="0" /></td>
+        <td style="width:110px"><button class="small-btn" onclick="adminDeleteRow(this)">Delete</button></td>
+      `;
+      tbody.appendChild(tr);
+      // scroll admin panel to bottom
+      const panel = document.getElementById('adminPanel');
+      panel.scrollTop = panel.scrollHeight;
+    }
+
+    // delete a row (button inside row)
+    function adminDeleteRow(button){
+      const tr = button.closest('tr');
+      if (!tr) return;
+      tr.remove();
+      // re-number rows
+      Array.from(document.querySelectorAll('#adminTable tbody tr')).forEach((r,i)=> r.children[0].textContent = i+1 );
+    }
+
+    // save admin changes back to localStorage leaderboard
+    function adminSave(){
+      const rows = Array.from(document.querySelectorAll('#adminTable tbody tr'));
+      const newBoard = [];
+      for (const r of rows) {
+        const name = r.querySelector('input[type="text"]').value.trim() || 'Guest';
+        let coinsVal = parseInt(r.querySelector('input[type="number"]').value, 10);
+        if (Number.isNaN(coinsVal) || coinsVal < 0) coinsVal = 0;
+        newBoard.push({ name, coins: coinsVal });
+      }
+      // sort and save
+      newBoard.sort((a,b)=> b.coins - a.coins);
+      localStorage.setItem('leaderboard', JSON.stringify(newBoard));
+      // also update current player's coins if their name changed
+      const myName = localStorage.getItem('playerName') || 'Guest';
+      const me = newBoard.find(p => p.name === myName);
+      if (me) { coins = me.coins; saveData(); updateCoinDisplay(); }
+      // refresh UI
+      updateLeaderboard();
+      updateShopButtons();
+      alert('Saved leaderboard changes.');
+    }
+
+    // export admin table to CSV
+    function adminExportCSV(){
+      const board = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+      if (!board.length) { alert('No leaderboard data to export.'); return; }
+      const csv = board.map(r => `${escapeCsv(r.name)},${Number(r.coins)}`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'leaderboard.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // import CSV: expects lines "name,coins"
+    function adminImportCSV(inputEl){
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const text = e.target.result;
+        const rows = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const parsed = [];
+        for (const line of rows){
+          // split only on first comma
+          const parts = line.split(',');
+          if (!parts.length) continue;
+          const name = parts[0].trim();
+          const coinsVal = parseInt(parts[1] ? parts[1].trim() : '0', 10) || 0;
+          parsed.push({ name, coins: coinsVal });
+        }
+        if (!parsed.length) { alert('No valid rows found in CSV.'); return; }
+        // set as leaderboard (replace)
+        parsed.sort((a,b)=> b.coins - a.coins);
+        localStorage.setItem('leaderboard', JSON.stringify(parsed));
+        adminRenderTable();
+        updateLeaderboard();
+        updateShopButtons();
+        alert('Imported CSV into leaderboard (saved).');
+        // clear file input
+        inputEl.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // small CSV helper escape
+    function escapeCsv(s){
+      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1) {
+        return '"' + String(s).replace(/"/g,'""') + '"';
+      }
+      return s;
+    }
+
+    // small HTML-escape (for values used in inputs)
+    function escapeHtml(s){
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ---------- shooting stars (lightweight) ---------- */
+    function spawnShootingStar(){
+      const star = document.createElement('div');
+      star.className = 'shooting-star';
+      const length = Math.random()*120 + 40;
+      const thickness = Math.random()*2 + 1;
+      star.style.width = `${thickness}px`;
+      star.style.height = `${length}px`;
+      const startX = Math.random() * (window.innerWidth * 0.8);
+      const startY = Math.random() * (window.innerHeight * 0.4);
+      star.style.left = `${startX}px`;
+      star.style.top = `${startY}px`;
+      star.style.opacity = '1';
+      star.style.transform = `rotate(${Math.random()*40 - 20}deg)`;
+      document.body.appendChild(star);
+      const dx = (Math.random()*600)+200;
+      const dy = (Math.random()*200)+50;
+      const angle = Math.random()*20 + 10;
+      const duration = Math.random()*800 + 900;
+      const anim = star.animate([
+        { transform: `translate(0px,0px) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${dx}px,${dy}px) rotate(${angle}deg)`, opacity: 0 }
+      ], { duration: duration, easing: 'cubic-bezier(.2,.8,.2,1)'});
+      anim.onfinish = () => star.remove();
+    }
+    function shootingStarLoop(){ spawnShootingStar(); setTimeout(shootingStarLoop, Math.random()*5200+800); }
+    setTimeout(shootingStarLoop, 1200);
+
+    // ensure leaderboard shown initially if opened
+    updateLeaderboard();
+
+    /* expose admin functions to window (optional) */
+    window.admin = { adminRenderTable, adminSave, adminExportCSV, adminImportCSV };
+
+  </script>
 </body>
 </html>
