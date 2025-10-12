@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Bubba's Gramama — Admin Email + Password Lock + User Timer</title>
+  <title>Bubba's Gramama — Admin + Editable Badge + Reset Time</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -31,10 +31,11 @@
       display: flex;
       gap: 10px;
       align-items: center;
-      min-width: 200px;
+      min-width: 220px;
     }
-    .user-badge .name { font-size: 14px; letter-spacing: 0.5px; }
+    .user-badge .name { font-size: 14px; letter-spacing: 0.5px; cursor: pointer; }
     .user-badge .time { font-size: 13px; color: rgba(207,198,255,0.9); font-weight:600; }
+    .user-badge input.edit-name { background: var(--panel); color: var(--accent); border: 1px solid rgba(0,255,255,0.06); padding:6px 8px; border-radius:6px; font-family:'Orbitron'; font-weight:700; width:140px; }
 
     /* top UI */
     .coin-container{position:fixed;top:20px;right:20px;z-index:14;display:flex;align-items:center;gap:10px}
@@ -45,7 +46,7 @@
     .panel{position:fixed;background:rgba(5,5,20,0.95);border:1px solid rgba(0,255,255,0.18);border-radius:12px;padding:12px;display:none;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,255,255,0.06);z-index:13;width:320px;animation:dropdown .28s ease}
     .shop-panel{top:70px;right:20px}
     .leaderboard-panel{top:70px;right:360px;width:260px}
-    .admin-panel{top:70px;right:20px;width:520px;max-height:70vh;overflow:auto}
+    .admin-panel{top:70px;right:20px;width:640px;max-height:70vh;overflow:auto}
 
     @keyframes dropdown{from{transform:translateY(-12px);opacity:0}to{transform:translateY(0);opacity:1}}
 
@@ -60,6 +61,7 @@
     table.admin-table input[type="text"], table.admin-table input[type="number"]{width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:var(--panel);color:var(--accent);font-family:'Orbitron'}
     .admin-actions{display:flex;gap:8px}
     .small-btn{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(180deg,#00baba,#00ffff);color:#001;font-weight:700}
+    .danger-btn{background:linear-gradient(180deg,#ff6666,#ff3333);color:#fff}
 
     /* leaderboard close btn (neon pulse) */
     @keyframes pulseGlow{0%,100%{box-shadow:0 0 10px rgba(255,0,0,0.35),0 0 20px rgba(255,0,0,0.25)}50%{box-shadow:0 0 22px rgba(255,0,0,0.6),0 0 36px rgba(255,0,0,0.45)}}
@@ -91,7 +93,7 @@
     .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end}
 
     .admin-note{font-size:13px;color:var(--muted);font-family:'Orbitron'}
-    @media(max-width:820px){ .admin-panel{right:10px;left:10px;width:auto} iframe{height:80vh} }
+    @media(max-width:900px){ .admin-panel{right:10px;left:10px;width:auto} iframe{height:80vh} }
   </style>
 </head>
 <body>
@@ -99,7 +101,7 @@
 
   <!-- User badge (top-left) -->
   <div id="userBadge" class="user-badge" aria-live="polite">
-    <div class="name" id="userName">Guest</div>
+    <div class="name" id="userName" title="Click to edit name">Guest</div>
     <div class="time" id="userTime">00:00:00</div>
   </div>
 
@@ -125,7 +127,7 @@
 
   <div class="panel admin-panel" id="adminPanel" aria-hidden="true">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <h3>Admin Spreadsheet — Edit Players' Coins</h3>
+      <h3>Admin Spreadsheet — Edit Players' Coins & Time</h3>
       <div><button class="small-btn" onclick="adminLogout()" title="Log out admin session">Log out</button></div>
     </div>
 
@@ -134,6 +136,7 @@
         <button class="small-btn" onclick="adminAddRow()">+ Add Row</button>
         <button class="small-btn" onclick="adminSave()">Save Changes</button>
         <button class="small-btn" onclick="adminExportCSV()">Export CSV</button>
+        <button class="small-btn danger-btn" onclick="adminResetAllTimes()">Reset All Times</button>
         <label style="display:inline-block">
           <input id="adminImportFile" type="file" accept=".csv" style="display:none" onchange="adminImportCSV(this)">
           <button class="small-btn" onclick="document.getElementById('adminImportFile').click()">Import CSV</button>
@@ -143,11 +146,11 @@
 
     <div style="overflow:auto;max-height:48vh">
       <table class="admin-table" id="adminTable">
-        <thead><tr><th>#</th><th>Player Name</th><th>Coins</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>Player Name</th><th>Coins</th><th>Time (total)</th><th>Actions</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
-    <div class="admin-note">Tip: CSV format = name,coins — import will replace/add rows. Press Save to persist changes to localStorage.</div>
+    <div class="admin-note">Tip: CSV format = name,coins — import will replace/add rows. Press Save to persist changes to localStorage. Use Reset Time to zero a student's cumulative time.</div>
   </div>
 
   <button id="backButton" onclick="goBack()">⬅ Back</button>
@@ -210,7 +213,7 @@
     const ADMIN_MAX_ATTEMPTS = 5;
     const ADMIN_LOCK_MS = 60 * 1000; // 60 seconds lock after too many failed attempts
 
-    /* ---------- existing site state & helpers ---------- */
+    /* ---------- state & helpers ---------- */
     const gameURLs = {
       'hideandsmash': "https://gibbat2.github.io/Games/games/hideandsmash/",
       'pixelgun': "https://gibbat2.github.io/Games/games/pixelgun/",
@@ -229,6 +232,7 @@
       'secret': "https://helios-blue.vercel.app/?sca_esv=fe0ebb4ec3b321c8&ie=ISO-8859-1&q=hello"
     };
 
+    // Coins & owned games
     let coins = parseInt(localStorage.getItem('coins') || '0', 10);
     let ownedGames = JSON.parse(localStorage.getItem('ownedGames') || '{}');
 
@@ -236,11 +240,49 @@
     function updateCoinDisplay(){ document.getElementById('coinDisplay').textContent = `🪙 ${coins}`; }
     function updateShopButtons(){ document.querySelectorAll('.buy-button').forEach(btn=>{ const gid = btn.dataset.game; const cost = btn.dataset.cost || ''; if (gid && ownedGames[gid]) { btn.classList.add('owned'); btn.textContent = 'Owned'; btn.disabled = true; } else { btn.classList.remove('owned'); btn.disabled = false; btn.textContent = cost ? `Buy - ${cost}🪙` : 'Buy'; } }); }
 
-    // ---------- USER BADGE & CUMULATIVE TIME ----------
-    // storage keys used:
-    // - 'playerName' (string)
-    // - 'timeSpentSeconds' (integer, cumulative seconds across all sessions)
+    // ---------------- Time storage per-user ----------------
+    // Storage key: 'timeSpentByUser' => JSON object { "Alice": 1234, "Bob": 5678 }
+    function loadTimeMapping() {
+      try {
+        const raw = localStorage.getItem('timeSpentByUser');
+        if (!raw) {
+          // backward compatibility: if old flat key exists, migrate it to current player
+          const legacy = localStorage.getItem('timeSpentSeconds');
+          if (legacy) {
+            const val = parseInt(legacy, 10) || 0;
+            const name = localStorage.getItem('playerName') || 'Guest';
+            const map = {};
+            map[name] = val;
+            localStorage.setItem('timeSpentByUser', JSON.stringify(map));
+            localStorage.removeItem('timeSpentSeconds');
+            return map;
+          }
+          return {};
+        }
+        return JSON.parse(raw || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+    function saveTimeMapping(map) {
+      localStorage.setItem('timeSpentByUser', JSON.stringify(map || {}));
+    }
 
+    function getPlayerName() {
+      return (localStorage.getItem('playerName') || '').trim() || null;
+    }
+
+    // If no playerName set, prompt once.
+    function ensurePlayerName() {
+      let name = getPlayerName();
+      if (!name) {
+        name = prompt("Enter your name (this will appear on the leaderboard and top-left badge):", "Guest") || "Guest";
+        localStorage.setItem('playerName', name);
+      }
+      updateUserBadgeName();
+    }
+
+    // ---------- USER BADGE & CUMULATIVE TIME ----------
     let sessionStart = Date.now();
     let sessionTimerInterval = null;
 
@@ -256,82 +298,145 @@
       return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
     }
 
-    function getTotalStoredSeconds() {
-      const raw = localStorage.getItem('timeSpentSeconds');
-      const n = parseInt(raw || '0', 10);
-      return Number.isNaN(n) ? 0 : n;
+    function getStoredSecondsForName(name) {
+      const map = loadTimeMapping();
+      return Number(map[name] || 0);
     }
 
-    function saveTotalStoredSeconds(val) {
-      localStorage.setItem('timeSpentSeconds', String(Math.max(0, Math.floor(val))));
+    function setStoredSecondsForName(name, seconds) {
+      const map = loadTimeMapping();
+      map[name] = Math.max(0, Math.floor(seconds));
+      saveTimeMapping(map);
     }
 
-    function getPlayerName() {
-      return (localStorage.getItem('playerName') || '').trim() || null;
+    function addSecondsToName(name, secondsToAdd) {
+      const map = loadTimeMapping();
+      map[name] = Math.max(0, Math.floor((map[name] || 0) + secondsToAdd));
+      saveTimeMapping(map);
     }
 
-    // If no playerName set, prompt once.
-    function ensurePlayerName() {
-      let name = getPlayerName();
-      if (!name) {
-        // prompt the user to enter their display name (used by leaderboard and badge)
-        name = prompt("Enter your name (this will appear on the leaderboard and top-left badge):", "Guest") || "Guest";
-        localStorage.setItem('playerName', name);
-      }
-      updateUserBadgeName();
+    function getTotalSecondsForCurrentUser() {
+      const name = getPlayerName() || 'Guest';
+      const stored = getStoredSecondsForName(name);
+      const elapsedThisSession = Math.floor((Date.now() - sessionStart) / 1000);
+      return stored + elapsedThisSession;
     }
 
     function updateUserBadgeName() {
       const name = getPlayerName() || 'Guest';
       document.getElementById('userName').textContent = name;
-      // Also keep localStorage.playerName in sync if needed
+      // reflect in localStorage if not set (should be kept in sync)
       if (localStorage.getItem('playerName') !== name) localStorage.setItem('playerName', name);
+      // update leaderboard UI when name changes
+      updateLeaderboard();
     }
 
     function updateUserBadgeTime() {
-      const stored = getTotalStoredSeconds();
-      const elapsedThisSession = Math.floor((Date.now() - sessionStart) / 1000);
-      const total = stored + elapsedThisSession;
+      const total = getTotalSecondsForCurrentUser();
       document.getElementById('userTime').textContent = formatDuration(total);
     }
 
     function startUserTimer() {
-      // clear any existing interval
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
       sessionStart = Date.now();
       updateUserBadgeTime();
       sessionTimerInterval = setInterval(updateUserBadgeTime, 1000);
     }
 
-    // when unload (reload/close), add session time to stored total
+    // persist session seconds on unload for current player
     function persistSessionTimeOnUnload() {
       try {
-        const stored = getTotalStoredSeconds();
+        const name = getPlayerName() || 'Guest';
         const sessionSec = Math.floor((Date.now() - sessionStart) / 1000);
-        const newTotal = stored + sessionSec;
-        saveTotalStoredSeconds(newTotal);
+        addSecondsToName(name, sessionSec);
       } catch (e) {
         // ignore
       }
     }
 
-    // react to storage changes from other tabs
+    // storage event cross-tab
     window.addEventListener('storage', (ev) => {
       if (ev.key === 'playerName') updateUserBadgeName();
-      if (ev.key === 'timeSpentSeconds') updateUserBadgeTime();
+      if (ev.key === 'timeSpentByUser') updateUserBadgeTime();
     });
+
+    // make the badge name clickable/editable
+    function attachBadgeEditHandlers() {
+      const nameEl = document.getElementById('userName');
+      nameEl.addEventListener('click', () => {
+        // transform into input
+        const oldName = getPlayerName() || 'Guest';
+        const input = document.createElement('input');
+        input.className = 'edit-name';
+        input.value = oldName;
+        input.title = 'Press Enter to save, Escape to cancel';
+        nameEl.replaceWith(input);
+        input.focus();
+        // select text
+        input.setSelectionRange(0, input.value.length);
+
+        function finish(save) {
+          const newNameRaw = input.value.trim() || 'Guest';
+          const newName = newNameRaw;
+          const parent = input.parentElement;
+          const span = document.createElement('div');
+          span.id = 'userName';
+          span.className = 'name';
+          span.textContent = newName;
+          // replace input with span
+          input.replaceWith(span);
+          // reattach handler
+          attachBadgeEditHandlers();
+          if (save) {
+            // transfer time mapping from oldName to newName (merge if needed)
+            if (oldName !== newName) {
+              const map = loadTimeMapping();
+              const oldSeconds = Number(map[oldName] || 0);
+              const newSeconds = Number(map[newName] || 0);
+              map[newName] = Math.max(0, oldSeconds + newSeconds);
+              // delete old key
+              if (map.hasOwnProperty(oldName)) delete map[oldName];
+              saveTimeMapping(map);
+              // update stored playerName
+              localStorage.setItem('playerName', newName);
+              // update leaderboard names (rename entries matching oldName -> newName)
+              const board = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+              let updated = false;
+              for (const p of board) {
+                if (p.name === oldName) { p.name = newName; updated = true; }
+              }
+              if (updated) localStorage.setItem('leaderboard', JSON.stringify(board));
+              // reflect UI
+              updateUserBadgeName();
+              updateUserBadgeTime();
+              updateLeaderboard();
+              // notify other tabs via storage events
+              localStorage.setItem('timeSpentByUser', JSON.stringify(loadTimeMapping()));
+              localStorage.setItem('playerName', newName);
+            }
+          } else {
+            // cancelled -> nothing else
+          }
+        }
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { finish(true); }
+          else if (e.key === 'Escape') { finish(false); }
+        });
+        input.addEventListener('blur', () => finish(true));
+      });
+    }
 
     // initialize user badge
     function initUserBadge() {
       ensurePlayerName();
       startUserTimer();
-      // persist on unload
+      attachBadgeEditHandlers();
       window.addEventListener('beforeunload', persistSessionTimeOnUnload);
-      window.addEventListener('pagehide', persistSessionTimeOnUnload); // mobile/visibility
+      window.addEventListener('pagehide', persistSessionTimeOnUnload);
     }
 
     // ---------- rest of site logic ----------
-
     updateCoinDisplay(); updateShopButtons();
 
     // Give 250 coins after 60 seconds for visit
@@ -351,14 +456,29 @@
     /* leaderboard */
     function toggleLeaderboard(){ const p = document.getElementById('leaderboardPanel'); if (p.style.display === 'flex') { p.style.display = 'none'; p.setAttribute('aria-hidden','true'); } else { updateLeaderboard(); p.style.display = 'flex'; p.setAttribute('aria-hidden','false'); } }
     function closeLeaderboard(){ document.getElementById('leaderboardPanel').style.display = 'none'; document.getElementById('leaderboardPanel').setAttribute('aria-hidden','true'); }
-    function updateLeaderboard(){ let board = JSON.parse(localStorage.getItem('leaderboard') || '[]'); if (!board.length){ const name = localStorage.getItem('playerName') || 'Guest'; board = [{ name, coins }]; } const currentName = localStorage.getItem('playerName') || 'Guest'; const existing = board.find(p=>p.name===currentName); if (existing) existing.coins = coins; else board.push({ name: currentName, coins }); board.sort((a,b)=>b.coins-a.coins); localStorage.setItem('leaderboard', JSON.stringify(board)); const list = document.getElementById('leaderboardList'); list.innerHTML = board.slice(0,10).map((p,i)=>`<div>${i+1}. ${p.name} — ${p.coins}🪙</div>`).join(''); }
+
+    function updateLeaderboard(){
+      let board = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+      const name = localStorage.getItem('playerName') || prompt("Enter your name for the leaderboard:") || "Guest";
+      localStorage.setItem('playerName', name);
+
+      const existing = board.find(p => p.name === name);
+      if (existing) existing.coins = coins;
+      else board.push({ name, coins });
+
+      board.sort((a,b) => b.coins - a.coins);
+      localStorage.setItem('leaderboard', JSON.stringify(board));
+
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = board.slice(0, 10).map((p, i) =>
+        `<div>${i+1}. ${p.name} — ${p.coins}🪙</div>`).join('');
+    }
 
     /* access code */
-    function checkCode(){ const input = document.getElementById('codeInput').value.trim(); const btn = document.getElementById('unlockButton'); if (input === '2354') { btn.style.display = 'inline-block'; btn.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' }); clearTimeout(window._unlockHideTimeout); window._unlockHideTimeout = setTimeout(()=>{ btn.style.display = 'none'; }, 10000); } else { btn.style.display = 'none'; const el = document.getElementById('codeInput'); el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 }); } }
+    function checkCode(){ const input = document.getElementById('codeInput').value.trim(); const button = document.getElementById('unlockButton'); if (input === '2354') { button.style.display = 'inline-block'; button.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' }); clearTimeout(window._unlockHideTimeout); window._unlockHideTimeout = setTimeout(()=>{ button.style.display = 'none'; }, 10000); } else { button.style.display = 'none'; const el = document.getElementById('codeInput'); el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 }); } }
     document.getElementById('codeInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); checkCode(); } });
 
     /* ---------- ADMIN: email+password client-side gate ---------- */
-
     function getAdminState(){
       const raw = localStorage.getItem('admin_attempts') || '{}';
       try { const a = JSON.parse(raw); return { attempts: Number(a.attempts || 0), lockedUntil: Number(a.lockedUntil || 0) }; }
@@ -383,11 +503,7 @@
       document.getElementById('adminEmailInput').focus();
     }
     function closeAdminModal(){ document.getElementById('adminModalBackdrop').style.display = 'none'; }
-
-    // close modal when clicking backdrop background (but not when clicking inside modal)
-    document.getElementById('adminModalBackdrop').addEventListener('click', function(e){
-      if (e.target === this) closeAdminModal();
-    });
+    document.getElementById('adminModalBackdrop').addEventListener('click', function(e){ if (e.target === this) closeAdminModal(); });
 
     function onAdminToggleClick(){
       if (sessionStorage.getItem('isAdmin') === 'true') {
@@ -405,7 +521,6 @@
       }
     }
 
-    // validate both email and password
     function checkAdminCredentials(){
       const st = getAdminState();
       if (st.lockedUntil && Date.now() < st.lockedUntil) {
@@ -426,7 +541,6 @@
         adminRenderTable();
         alert('Admin access granted for this session.');
       } else {
-        // increment attempts
         st.attempts = (st.attempts || 0) + 1;
         if (st.attempts >= ADMIN_MAX_ATTEMPTS) {
           st.lockedUntil = Date.now() + ADMIN_LOCK_MS;
@@ -446,8 +560,7 @@
       alert('Admin session ended.');
     }
 
-    /* ---------- Admin spreadsheet code (improved rendering) ---------- */
-
+    /* ---------- Admin spreadsheet code (with Reset Time buttons) ---------- */
     function adminRenderTable(){
       const tbody = document.querySelector('#adminTable tbody');
       tbody.innerHTML = '';
@@ -456,22 +569,20 @@
         const name = localStorage.getItem('playerName') || 'Guest';
         board = [{ name, coins }];
       }
+      const timeMap = loadTimeMapping();
       board.forEach((row, idx) => {
         const tr = document.createElement('tr');
 
-        // index cell
         const tdIndex = document.createElement('td');
         tdIndex.style.width = '40px';
         tdIndex.textContent = idx + 1;
 
-        // name cell with input
         const tdName = document.createElement('td');
         const inputName = document.createElement('input');
         inputName.type = 'text';
         inputName.value = row.name || '';
         tdName.appendChild(inputName);
 
-        // coins cell with input
         const tdCoins = document.createElement('td');
         const inputCoins = document.createElement('input');
         inputCoins.type = 'number';
@@ -479,18 +590,33 @@
         inputCoins.value = Number(row.coins) || 0;
         tdCoins.appendChild(inputCoins);
 
-        // actions
+        const tdTime = document.createElement('td');
+        const totalSeconds = Number(timeMap[row.name] || 0);
+        tdTime.textContent = formatDuration(totalSeconds);
+
         const tdActions = document.createElement('td');
-        tdActions.style.width = '110px';
+        tdActions.style.width = '200px';
+        // delete button
         const delBtn = document.createElement('button');
         delBtn.className = 'small-btn';
         delBtn.textContent = 'Delete';
         delBtn.onclick = function(){ adminDeleteRow(this); };
+
+        // reset time button
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'small-btn danger-btn';
+        resetBtn.style.marginLeft = '8px';
+        resetBtn.textContent = 'Reset Time';
+        resetBtn.title = `Zero ${row.name}'s cumulative time`;
+        resetBtn.onclick = function(){ adminResetTimeForRow(row.name, tdTime); };
+
         tdActions.appendChild(delBtn);
+        tdActions.appendChild(resetBtn);
 
         tr.appendChild(tdIndex);
         tr.appendChild(tdName);
         tr.appendChild(tdCoins);
+        tr.appendChild(tdTime);
         tr.appendChild(tdActions);
 
         tbody.appendChild(tr);
@@ -519,17 +645,27 @@
       inputCoins.value = 0;
       tdCoins.appendChild(inputCoins);
 
+      const tdTime = document.createElement('td');
+      tdTime.textContent = formatDuration(0);
+
       const tdActions = document.createElement('td');
-      tdActions.style.width = '110px';
+      tdActions.style.width = '200px';
       const delBtn = document.createElement('button');
       delBtn.className = 'small-btn';
       delBtn.textContent = 'Delete';
       delBtn.onclick = function(){ adminDeleteRow(this); };
+      const resetBtn = document.createElement('button');
+      resetBtn.className = 'small-btn danger-btn';
+      resetBtn.style.marginLeft = '8px';
+      resetBtn.textContent = 'Reset Time';
+      resetBtn.onclick = function(){ adminResetTimeForRow(inputName.value.trim() || 'Guest', tdTime); };
       tdActions.appendChild(delBtn);
+      tdActions.appendChild(resetBtn);
 
       tr.appendChild(tdIndex);
       tr.appendChild(tdName);
       tr.appendChild(tdCoins);
+      tr.appendChild(tdTime);
       tr.appendChild(tdActions);
 
       tbody.appendChild(tr);
@@ -559,6 +695,7 @@
       const me = newBoard.find(p => p.name === myName);
       if (me) { coins = me.coins; saveData(); updateCoinDisplay(); }
       updateLeaderboard(); updateShopButtons();
+      adminRenderTable();
       alert('Saved leaderboard changes.');
     }
 
@@ -602,7 +739,36 @@
     }
 
     function escapeCsv(s){ if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1) { return '"' + String(s).replace(/"/g,'""') + '"'; } return s; }
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // Reset a single player's cumulative time (admin action)
+    function adminResetTimeForRow(playerName, tdTimeCell) {
+      if (!confirm(`Reset cumulative time for "${playerName}" to 0?`)) return;
+      const map = loadTimeMapping();
+      if (map.hasOwnProperty(playerName)) delete map[playerName];
+      saveTimeMapping(map);
+      // update UI
+      if (tdTimeCell) tdTimeCell.textContent = formatDuration(0);
+      // if current user is the one reset, update badge display
+      if ((getPlayerName() || 'Guest') === playerName) {
+        // reset session start so badge shows 00:00:00 for now
+        sessionStart = Date.now();
+        updateUserBadgeTime();
+      }
+      // ensure admin table reflects mapping
+      adminRenderTable();
+      alert(`Cumulative time for "${playerName}" has been reset.`);
+    }
+
+    // Reset all times
+    function adminResetAllTimes() {
+      if (!confirm('Reset cumulative time for ALL players to 0? This cannot be undone.')) return;
+      saveTimeMapping({});
+      // update badge and admin table
+      sessionStart = Date.now();
+      updateUserBadgeTime();
+      adminRenderTable();
+      alert('All cumulative times reset to 0.');
+    }
 
     /* shooting stars (lightweight) */
     function spawnShootingStar(){
@@ -639,8 +805,12 @@
     initUserBadge();
     updateLeaderboard();
 
-    // expose a few helpers for debugging if needed
-    window._BG = { adminRenderTable, adminSave, adminExportCSV, adminImportCSV, adminLogout };
+    // on unload, persist session time
+    window.addEventListener('beforeunload', persistSessionTimeOnUnload);
+    window.addEventListener('pagehide', persistSessionTimeOnUnload);
+
+    // expose helpers for debugging
+    window._BG = { adminRenderTable, adminSave, adminExportCSV, adminImportCSV, adminLogout, loadTimeMapping, saveTimeMapping };
 
   </script>
 </body>
