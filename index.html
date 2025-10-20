@@ -55,7 +55,7 @@
     .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end}
     .admin-note{font-size:13px;color:var(--muted);font-family:'Orbitron'}
     @media(max-width:900px){ .admin-panel{right:10px;left:10px;width:auto} iframe{height:80vh} }
-  </style>
+    </style>
 </head>
 <body>
   <div class="stars"></div><div class="stars2"></div><div class="nebula"></div>
@@ -66,7 +66,7 @@
   </div>
 
   <div class="coin-container">
-    <button id="dailyRewardBtn" class="top-btn" onclick="claimDailyReward()">🎁 Daily Reward</button>
+    <button id="dailyRewardBtn" class="top-btn" onclick="claimDailyReward()">🎁 Haha take that Byron</button>
     <button id="leaderboardToggle" class="top-btn" onclick="toggleLeaderboard()">🏆 Leaderboard</button>
     <span id="coinDisplay">🪙 0</span>
     <button id="shopToggle" class="top-btn" onclick="toggleShop()">🛒 Shop</button>
@@ -77,6 +77,8 @@
     <h3>Game Shop</h3>
     <div class="shop-item"><span>Drive Mad</span><button class="buy-button" data-game="drivemad" data-cost="300" onclick="buyGame('drivemad',300)">Buy - 300🪙</button></div>
     <div class="shop-item"><span>Hide and Smash</span><button class="buy-button" data-game="hideandsmash" data-cost="200" onclick="buyGame('hideandsmash',200)">Buy - 200🪙</button></div>
+    <div class="shop-item"><span>void network V5</span><button class="buy-button" data-game="voidNetwork" data-cost="1000" onclick="buyGame('voidNetwork',1000)">Buy - 1000🪙</button></div>
+    <div class="shop-item"><span>Drift Hunter</span><button class="buy-button" data-game="driftHunters" data-cost="1000" onclick="buyGame('driftHunters',400)">Buy - 400🪙</button></div>
   </div>
 
   <div class="panel leaderboard-panel" id="leaderboardPanel" aria-hidden="true">
@@ -189,7 +191,7 @@
       'drivemad': "https://gibbat2.github.io/Games/games/drivemad/",
       'oppositeday': "https://www.hoodamath.com/games/oppositeday.html",
       'snowrider': "https://www.hoodamath.com/games/snowrider3d.html",
-      'secret': "http://010203040720.studentvue.my.cdn.cloudflare.net"
+      'secret': "https://010203040641.studentvue.my.cdn.cloudflare.net/"
     };
 
     // Coins & owned games - persistent
@@ -300,7 +302,7 @@
     }
 
     function updateUserBadgeName() {
-      const name = getPlayerName() || 'Guest';
+      const name = getPlayerName() || 'Bubbas Guest';
       const elem = document.getElementById('userName');
       if (elem) elem.textContent = name;
       if (localStorage.getItem('playerName') !== name) localStorage.setItem('playerName', name);
@@ -344,7 +346,7 @@
       if (!existing) return;
       existing.onclick = null;
       existing.addEventListener('click', () => {
-        const oldName = getPlayerName() || 'Guest';
+        const oldName = getPlayerName() || 'Bubbas Guest';
         const input = document.createElement('input');
         input.className = 'edit-name';
         input.value = oldName;
@@ -453,7 +455,7 @@
 
     /* iframe */
     function launchGame(id){
-      const shopProtected = ['drivemad','hideandsmash'];
+      const shopProtected = ['drivemad','hideandsmash','voidNetwork','driftHunters'];
       if (shopProtected.includes(id) && !ownedGames[id]) {
         alert("You need to buy this game first 🛒");
         return;
@@ -518,7 +520,23 @@
     }
 
     /* access code */
-    function checkCode(){ const input = document.getElementById('codeInput').value.trim(); const button = document.getElementById('unlockButton'); if (input === 'f-president-number-47','yes-on-50','NO-KINGS!','NoOneIsIllegaleOnStolenLand') { button.style.display = 'inline-block'; button.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' }); clearTimeout(window._unlockHideTimeout); window._unlockHideTimeout = setTimeout(()=>{ button.style.display = 'none'; }, 10000); } else { button.style.display = 'none'; const el = document.getElementById('codeInput'); el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 }); } }
+    function checkCode(){
+      const input = document.getElementById('codeInput').value.trim();
+      const normalized = input.toLowerCase();
+      // Acceptable codes (case-insensitive). This requires exact string match after trimming.
+      const allowed = ['f-pres47', 'no-kings!', '!no-kings!'];
+      const button = document.getElementById('unlockButton');
+      if (allowed.includes(normalized)) {
+        button.style.display = 'inline-block';
+        button.animate([{ transform: 'scale(.96)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
+        clearTimeout(window._unlockHideTimeout);
+        window._unlockHideTimeout = setTimeout(()=>{ button.style.display = 'none'; }, 10000);
+      } else {
+        button.style.display = 'none';
+        const el = document.getElementById('codeInput');
+        el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 260, iterations: 1 });
+      }
+    }
     document.getElementById('codeInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); checkCode(); } });
     document.getElementById('unlockButton').addEventListener('click', function() {
       launchGame('secret');
